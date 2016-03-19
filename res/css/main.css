@@ -1,0 +1,74 @@
+#login, #nav {
+	float: right;
+}
+
+header {
+	height: 10%;
+	width: 100%;
+	background-color: grey;
+	margin: 0px;
+}
+
+body{
+	margin: 0px;
+}
+
+header  h1 {
+	margin: 0px;
+}
+
+#important {
+	font-weight: bold;
+}
+
+#terms {
+	width: 60%;
+	margin: auto;
+	text-align: center;
+}
+
+#createForm, #settingsForm{
+	width: 20%;
+	margin-left: auto;
+	margin-right: auto;
+	border: 2px solid grey;
+	text-align: center;
+	margin-top: 5%;
+	padding: 5px;
+}
+
+#webname {
+	margin: 0px;
+	text-decoration: none;
+	color: black;
+}
+
+#loaded {
+	border: 2px solid black;
+}
+
+#forecastTable, #forecastTable td, #forecastTable tr {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+#settingsForm legend {
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 10px;
+	font-size: 20px;
+}
+
+#currentloading, #forecastloading, #todoloading {
+	height: 200px;
+	width: 200px;
+}
+
+#add {
+	width: 150px;
+	border: 2px solid black;
+}
+
+#add:hover {
+	cursor: pointer;
+}
