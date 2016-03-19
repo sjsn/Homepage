@@ -49,6 +49,6 @@
 					"$state\n" .
 					"$country\n" .
 					"$zip\n";
-	file_put_contents("../../$name/settings.txt", $newSettings);
-	header("Location: ../../$name/settings.php");
+	file_put_contents("../../users/$name/settings.txt", $newSettings);
+	header("Location: ../../users/$name/settings.php");
 ?>

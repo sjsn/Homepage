@@ -149,6 +149,9 @@
 	}
 
 	function getToDo() {
+		document.getElementById("todoloading").style.display = "initial";
+		document.getElementById("list").innerHTML = "";
+		document.getElementById("notodo").innerHTML = "";
 		var php = "?mode=todo&username=" + name;
 		ajax(USER_URL, php, loadToDo, "GET", false);
 	}
@@ -156,18 +159,33 @@
 	function loadToDo() {
 		if (this.status == 200) {
 			var json = JSON.parse(this.responseText);
-			if (json) {
+			if (json.todo.length) {
 				for (var i = 0; i < json.todo.length; i++) {
 					var li = document.createElement("li");
+					var text = document.createElement("p");
 					var checkBox = document.createElement("input");
+					var del = document.createElement("div");
+					del.innerHTML = "Delete";
 					checkBox.type = "checkbox";
-					checkBox.id = "del";
-					li.innerHTML = json.todo[i].item;
+					checkBox.id = "check";
+					text.innerHTML = json.todo[i].item;
+					checkBox.value = text.innerHTML;
+					checkBox.checked = json.todo[i].checked;
+					if (checkBox.checked) {
+						text.innerHTML = "<s>" + text.innerHTML + "</s>";
+					}
+					del.className = "del";
+					del.id = json.todo[i].item;
+					text.id = "todoText";
+					del.onclick = deleteItem;
+					checkBox.onchange = changeChecked;
 					li.appendChild(checkBox);
+					li.appendChild(text);
+					li.appendChild(del);
 					document.getElementById("list").appendChild(li);
 				}
 			} else {
-				document.getElementById("listContainer").innerHTML = "You " +
+				document.getElementById("notodo").innerHTML = "You " +
 				"have not yet added any ToDo Items.";
 			}
 		} else {
@@ -177,8 +195,28 @@
 		document.getElementById("todoloading").style.display = "none";
 	}
 
+	function changeChecked() {
+		var php = "res/forms/todo.php";
+		var checked = this.checked;
+		var item = this.value;
+		var params = new FormData();
+		params.append("item", item);
+		params.append("checked", checked);
+		params.append("action", "check");
+		ajax(HOME_URL, php, getToDo, "POST", params);
+	}
+
+	function deleteItem() {
+		var php = "res/forms/todo.php";
+		var item = this.id;
+		var params = new FormData();
+		params.append("item", item);
+		params.append("action", "del");
+		ajax(HOME_URL, php, getToDo, "POST", params);
+	}
+
 	function addToDoItem() {
-		var php = name + "/todo.txt";
+		var php = "res/forms/todo.php";
 		var newItem = document.getElementById("newItem").value;
 		if (newItem) {
 			var params = new FormData();

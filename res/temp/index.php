@@ -4,6 +4,9 @@
 	if (isset($_SESSION["name"])) {
 		$name = $_SESSION["name"];
 		$displayName = strtoupper($name) . "'s";
+	} else {
+		header("Location: ../");
+		die();
 	}
 
 	if (isset($_GET["error"])) {
@@ -21,14 +24,14 @@
 <html>
 <head>
 	<title><?=$displayName ?> Homepage</title>
-	<link rel="stylesheet" type="text/css" href="../res/css/main.css">
-	<script type="text/javascript" src="../res/js/main.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../res/css/main.css">
+	<script type="text/javascript" src="../../res/js/main.js"></script>
 </head>
 <body>
 	<header>
 		<div id="nav">
-			<a href="./settings.php">Settings</a>
-			<a href="../res/forms/logout.php">Logout</a>
+			<a href="../../res/forms/settings.php">Settings</a>
+			<a href="../../res/forms/logout.php">Logout</a>
 		</div>
 		<a href="." id="webname">
 			<h1 id="title"><?=$displayName ?> Homepage</h1>
@@ -37,21 +40,23 @@
 	<div id="weather">
 		<div id="current">
 			<h2>Current Weather:</h2>
-			<img src="../res/img/loading.gif" id="currentloading" />
+			<img src="../../res/img/loading.gif" id="currentloading" />
 			<div id="currenterror">
 			</div>
 		</div>
 		<div id="forecast">
 			<h2>7 Day Forecast:</h2>
-			<img src="../res/img/loading.gif" id="forecastloading" />
+			<img src="../../res/img/loading.gif" id="forecastloading" />
 			<div id="forecasterror">
 			</div>
 		</div>
 	</div>
 	<div id="todo">
 		<h2>ToDo List</h2>
-		<img src="../res/img/loading.gif" id="todoloading" />
+		<img src="../../res/img/loading.gif" id="todoloading" />
 		<div id="listContainer">
+			<p id="notodo">
+			</p>
 			<ul id="list">
 			</ul>
 		</div>

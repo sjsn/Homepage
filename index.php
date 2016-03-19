@@ -7,7 +7,7 @@
 			$error = $_GET["error"];
 			$url = "./$name/?error=$error";
 		} else {
-			$url = "./$name/";
+			$url = "./users/$name/";
 		}
 		header("Location: $url");
 		die();
@@ -36,14 +36,14 @@
 	</header>
 	<div id="pageDesc">
 		<h2>What is this page?</h2>
-		<p>This page provides you with weather data based on your lcoation, the ability to
+		<p>This page provides you with weather data based on your location, the ability to
 			create your own To-Do list, and the ability to add a customizable calendar.
 		</p>
 		<h2>How to access</h2>
 		<p>
-			If you're new, simply create a new account to accesss all of the features! If
-			you're a returning user, simply <a href="new.php">create a new account</a>! 
-			It's that easy!
+			If you're a returning user, just log in to access your account! If
+			you're a returning user, simply <a href="new.php">create a new account</a> 
+			to access all of the features! It's that easy!
 		</p>
 	</div>
 </body>

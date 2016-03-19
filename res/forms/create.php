@@ -40,16 +40,18 @@
 	$newaccount = "$username|$pass\n";
 	file_put_contents("../../res/logins.txt", $newaccount);
 
-	mkdir("../../$username/");
-	touch("../../$username/index.php");
-	touch("../../$username/settings.txt");
-	touch("../../$username/todo.txt");
-	touch("../../$username/settings.php");
-	copy("../../res/temp/index.php", "../../$username/index.php");
-	copy("../../res/temp/settings.txt", "../../$username/settings.txt");
-	copy("../../res/temp/settings.php", "../../$username/settings.php");
+	mkdir("../../users/$username/");
+	touch("../../users/$username/index.php");
+	touch("../../users/$username/settings.txt");
+	touch("../../users/$username/todo.txt");
+	touch("../../users/$username/settings.php");
+	touch("../../users/$username/stop.htaccess");
+	copy("../../res/temp/index.php", "../../users/$username/index.php");
+	copy("../../res/temp/settings.txt", "../../users/$username/settings.txt");
+	copy("../../res/temp/settings.php", "../../users/$username/settings.php");
+	copy("../../res/temp/stop.htaccess", "../../users/$username/stop.htaccess");
 
 	$_SESSION["name"] = $username;
-	header("Location: ../../$username/");
+	header("Location: ../../users/$username/");
 	die();
 ?>

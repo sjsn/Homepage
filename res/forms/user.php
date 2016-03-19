@@ -21,7 +21,7 @@
 	}
 
 	if ($mode == "account") {
-		$settingsFile = file("../../$n/settings.txt");
+		$settingsFile = file("../../users/$n/settings.txt");
 		list($units, $city, $state, $country, $zip) = $settingsFile;
 		$settingsData = array(
 			"units" => trim($units),
@@ -37,14 +37,28 @@
 			);
 		makeJSON($data);
 	} else if ($mode == "todo") {
-		$todoFile = file("../../$n/todo.txt");
-		$count = count($todoFile);
+		$todoFile = file("../../users/$n/todo.txt");
+		$date = getdate();
+		$day = $date["mday"];
+		$month = $date["mon"];
+		$year = $date["year"];
+		$today = "$month$day$year";
 		$todoData = array();
-		for($i = 0; $i < $count; $i++) {
-			array_push($todoData, strval("item") -> trim($todoFile[$i]));
+		$todoArray = array();
+		foreach($todoFile as $items) {
+			$value = explode("|", $items);
+			$input = trim($value[0]);
+			$checked = filter_var(trim($value[1]), FILTER_VALIDATE_BOOLEAN);
+			$holderArray = array();
+			$todoData["item"] = $input;
+			$todoData["checked"] = $checked;
+			$todoArray[] = $todoData;
 		}
-		$data = array("todo" => $todoData);
-		makeJSON($name, $data);
+		$data = array(
+			"date" => $today,
+			"todo" => $todoArray
+			);
+		makeJSON($data);
 	} else {
 		header("HTTP/1.1 Invalid Parameters");
 		die("Invalid request, please check your parameters and try again.");
