@@ -1,7 +1,7 @@
 # Homepage
 An informative homepage for any browser.
 
-Available [my student website](http://students.washington.edu/sjsn/homepage/).
+Available on [my student webspace](http://students.washington.edu/sjsn/homepage/).
 
 ## What is it?
 
