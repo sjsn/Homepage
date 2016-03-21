@@ -1,7 +1,8 @@
 <?php
 	session_start();
 	if ($_SESSION["name"] != "") {
-		header("Location: ../../index.php?error=loggedin");
+		$error = "You are already logged in.";
+		header("Location: ../../index.php?error=$error");
 		die();
 	}
 
@@ -9,7 +10,8 @@
 		$name = $_POST["name"];
 		$pass = $_POST["pass"];
 	} else {
-		header("Location: ../../index.php?error=blank");
+		$error = "Username and password cannot be blank.";
+		header("Location: ../../index.php?error=$error");
 		die();
 	}
 
@@ -27,6 +29,7 @@
 		}
 	}
 
-	header("Location: ../../?error=invalid");
+	$error = "Invalid username or password. Please try again.";
+	header("Location: ../../?error=");
 	die();
 ?>

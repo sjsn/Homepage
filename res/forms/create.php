@@ -1,55 +1,74 @@
 <?php
-
-	/*
-		TODO: 
-		-Create standards for username/pass
-		-Implement errors into new.php
-		-Implement a redundant password check (2 inputs, match or no?)
-	*/
 	session_start();
 	if (isset($_SESSION["name"])) {
 		header("Location: ../../?error=loggedin");
 		die();
 	}
 
-	if ($_POST["username"] != "" && $_POST["pass"] !="") {
+	if ($_POST["username"] != "" && $_POST["pass1"] !="" && $_POST["pass2"] != "") {
 		$username = $_POST["username"];
-		$pass = $_POST["pass"];
+		if (strcmp($_POST["pass1"], $_POST["pass2"])) {
+			$error = "Passwords did not match. Please try again.";
+			header("Location: ../../new.php?error=$error");
+			die();
+		}
+		$pass = $_POST["pass1"];
 	} else {
-		header("Location: ../../new.php?error=blank");
+		$error = "Username and password cannot be blank";
+		header("Location: ../../new.php?error=$error");
 		die();
 	}
 
 	if ($_POST["terms"] == false) {
-		header("Location: ../../new.php?error=terms");
+		$error = "You must accept the terms and condition to create an account.";
+		header("Location: ../../new.php?error=$error");
 		die();
 	}
 
-	if (!file_exists("../../res/logins.txt")) {
-		touch("../../res/logins.txt");
+	/* Usernames must start with a letter, consist of only lowercase letters and numbers,
+	and be no more than 12 characters in length */
+	$nameReg = "/^[a-z]([a-z\d]{1,10})[a-z\d]$/";
+	/* Passwords must consist only of letters and numbers and be no more than 12
+	characters in length */
+	$passReg = "/^[a-zA-Z\d]([a-zA-Z\d]{1,10})[a-zA-Z\d]$/";
+	if (!preg_match("$nameReg", trim($username))) {
+		$error = "Usernames must start with a letter, consist of only lowercase letters and" . 
+		" numbers and be no more than 12 characters in length";
+		header("Location: ../../new.php?error=$error");
+		die();
+	} else if (!preg_match("$passReg", trim($pass))) {
+		$error = "Passwords must consist only of letters and numbers and be no more than 12" .
+		" characters in length.";
+		header("Location: ../../new.php?error=$error");
+		die();
+	}
+	
+	if (!file_exists("../logins.txt")) {
+		touch("../logins.txt");
 	}
 
-	$file = file("../../res/logins.txt");
+	$file = file("../logins.txt");
 	foreach($file as $lines) {
 		$accounts = explode("|", trim($lines));
 		if ($username == $accounts[0]) {
-			header("Location: ../../new.php?error=used");
+			$error = "Sorry, that username has already been taken. Please try a different one.";
+			header("Location: ../../new.php?error=$error");
 			die();
 		}
 	}
 	$newaccount = "$username|$pass\n";
-	file_put_contents("../../res/logins.txt", $newaccount);
+	file_put_contents("../../res/logins.txt", $newaccount, FILE_APPEND);
 
 	mkdir("../../users/$username/");
 	touch("../../users/$username/index.php");
 	touch("../../users/$username/settings.txt");
 	touch("../../users/$username/todo.txt");
 	touch("../../users/$username/settings.php");
-	touch("../../users/$username/stop.htaccess");
+	touch("../../users/$username/.htaccess");
 	copy("../../res/temp/index.php", "../../users/$username/index.php");
 	copy("../../res/temp/settings.txt", "../../users/$username/settings.txt");
 	copy("../../res/temp/settings.php", "../../users/$username/settings.php");
-	copy("../../res/temp/stop.htaccess", "../../users/$username/stop.htaccess");
+	copy("../../res/temp/.htaccess", "../../users/$username/.htaccess");
 
 	$_SESSION["name"] = $username;
 	header("Location: ../../users/$username/");

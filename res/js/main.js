@@ -7,7 +7,9 @@
 	var state = "";
 	var zip = "";
 	var name = "";
+	var today = "";
 	const API_URL = "http://api.openweathermap.org/data/2.5/";
+	const ICON_URL = "http://students.washington.edu/sjsn/homepage/res/img/icons/";
 	const USER_URL = "http://students.washington.edu/sjsn/homepage/res/forms/user.php";
 	const HOME_URL = "http://students.washington.edu/sjsn/homepage/";
 
@@ -45,6 +47,13 @@
 		country = json.settings.country;
 		state = json.settings.state;
 		zip = json.settings.zip;
+		var d = new Date();
+		var date = d.toDateString();
+		date = date.split(" ");
+		date = date[0] + ", " + date[1] + " " + 
+		date[2] + ", " + date[3];
+		today = date;
+		document.getElementById("presentDate").innerHTML = today;
 		getCurrent();
 		getForecast();
 	}
@@ -63,30 +72,35 @@
 	}
 
 	function loadCurrent() {
-		var error = document.getElementById("currenterror");
 		if (this.status == 200) {
-			var current = document.getElementById("current");
+			var current = document.getElementById("currentWeather");
 			var json = JSON.parse(this.responseText);
-			current.id = "current loaded";
+			var icon = document.createElement("img");
+			icon.alt = "weather icon";
+			icon.src = ICON_URL + json.weather[0].icon + ".png";
+			icon.id = "weatherIcon";
 			var cityName = document.createElement("h3");
 			cityName.innerHTML = city;
 			cityName.id = "city";
 			var temp = document.createElement("p");
-			temp.innerHTML = json.main.temp;
+			temp.innerHTML = Math.round(json.main.temp) + "&#8457;";
 			var desc = document.createElement("p");
 			desc.innerHTML = json.weather[0].description;
 			var minMax = document.createElement("p");
-			minMax.innerHTML = "min/max: " + json.main.temp_min + "&#8457;/" + 
-			json.main.temp_max + "&#8457;";
+			minMax.innerHTML = "min: " + Math.round(json.main.temp_min) + 
+			"&#8457; / max: " + Math.round(json.main.temp_max) + "&#8457;";
+			current.appendChild(icon);
 			current.appendChild(cityName);
 			current.appendChild(temp);
 			current.appendChild(desc);
 			current.appendChild(minMax);
 		} else if (this.status == 429) {
+			var error = document.getElementById("currenterror");
 			error.innerHTML = "The server is " + 
 			"experiencing too many requests at this time. Please refresh the" + 
 	        "page to try again.";
 		} else {
+			var error = document.getElementById("currenterror");
 			error.innerHTML = "There was an error loading the weather data. " +  
 			"Please refresh the page to try again.";
 		}
@@ -123,20 +137,29 @@
 			var utc = json.list[i].dt;
 			var dataDate = new Date(0);
 			dataDate.setUTCSeconds(utc);
-			if (dataDate == date) {
-				title.style.backgroundColor = "green";
+			dataDate = dataDate.toDateString();
+			dataDate = dataDate.split(" ");
+			dataDate = dataDate[0] + ", " + dataDate[1] + " " + 
+			dataDate[2] + ", " + dataDate[3];
+			if (dataDate == today) {
+				title.style.backgroundColor = "#6EFF70";
 			}
 			title.innerHTML = dataDate;
 			var cell = document.createElement("td");
+			var icon = document.createElement("img");
+			icon.alt = "weather icon";
+			icon.src = ICON_URL + json.list[i].weather[0].icon + ".png";
+			icon.id = "weatherIcon";
 			var temp = document.createElement("p");
 			temp.id = "tableTemp";
-			temp.innerHTML = json.list[i].temp.day + "&#8457;";
+			temp.innerHTML = Math.round(json.list[i].temp.day) + "&#8457;";
 			var minMax = document.createElement("p");
 			minMax.id = "tableMinMax";
-			minMax.innerHTML = json.list[i].temp.min + "&#8457;/" + 
-			json.list[i].temp.max + "&#8457;";
+			minMax.innerHTML = Math.round(json.list[i].temp.min) + "&#8457;/" + 
+			Math.round(json.list[i].temp.max) + "&#8457;";
 			var desc = document.createElement("p");
 			desc.innerHTML = json.list[i].weather[0].description;
+			cell.appendChild(icon);
 			cell.appendChild(temp);
 			cell.appendChild(desc);
 			cell.appendChild(minMax);
@@ -161,28 +184,34 @@
 			var json = JSON.parse(this.responseText);
 			if (json.todo.length) {
 				for (var i = 0; i < json.todo.length; i++) {
-					var li = document.createElement("li");
-					var text = document.createElement("p");
+					var row = document.createElement("tr")
+					var checkCell = document.createElement("td");
 					var checkBox = document.createElement("input");
-					var del = document.createElement("div");
-					del.innerHTML = "Delete";
 					checkBox.type = "checkbox";
 					checkBox.id = "check";
-					text.innerHTML = json.todo[i].item;
-					checkBox.value = text.innerHTML;
+					checkBox.value = json.todo[i].item;
 					checkBox.checked = json.todo[i].checked;
 					if (checkBox.checked) {
 						text.innerHTML = "<s>" + text.innerHTML + "</s>";
 					}
+					checkBox.onchange = changeChecked;
+					var textCell = document.createElement("td");
+					var text = document.createElement("p");
+					text.innerHTML = json.todo[i].item;
+					text.id = "todoText";
+					var delCell = document.createElement("td");
+					var del = document.createElement("div");
+					del.innerHTML = "Delete";
 					del.className = "del";
 					del.id = json.todo[i].item;
-					text.id = "todoText";
 					del.onclick = deleteItem;
-					checkBox.onchange = changeChecked;
-					li.appendChild(checkBox);
-					li.appendChild(text);
-					li.appendChild(del);
-					document.getElementById("list").appendChild(li);
+					checkCell.appendChild(checkBox)
+					row.appendChild(checkCell);
+					textCell.appendChild(text)
+					row.appendChild(textCell);
+					delCell.appendChild(del);
+					row.appendChild(delCell);
+					document.getElementById("list").appendChild(row);
 				}
 			} else {
 				document.getElementById("notodo").innerHTML = "You " +
@@ -192,6 +221,7 @@
 			document.getElementById("todoerror").innerHTML = "There was an " +
 			"error loading your ToDo List. Please refresh the page to try again.";
 		}
+		document.getElementById("")
 		document.getElementById("todoloading").style.display = "none";
 	}
 

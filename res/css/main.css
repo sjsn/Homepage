@@ -1,20 +1,113 @@
+#pageDesc h2#dev {
+	color: red;
+}
+
+#signature {
+	font-family: monospace;
+	font-size: 18px;
+}
+
 #login, #nav {
+	float: right;
+	margin-right: 20px;
+}
+
+#nav a, #back a {
+	text-decoration: none;
+	font-size: 20px;
+}
+
+#nav div, #back {
+	border: 2px solid #80766a;
+	display: inline-block;
+	background-color: #eaf4f6;
+	padding: 5px;
+}
+
+a {
+	color: #80766a;
+}
+
+#create {
+	text-decoration: none;
+	font-size: 15px;
+}
+
+#loginOptions {
 	float: right;
 }
 
-header {
+#container {
+	height: 100%;
+	position: relative;
+}
+
+header, footer {
 	height: 10%;
 	width: 100%;
-	background-color: grey;
+	background-color: #7fc6db;
 	margin: 0px;
+	padding: 10px;
+}
+
+footer {
+	height: 8%;
+	position: absolute;
+	clear: both;
+	width: 100%;
+	z-index: 10;
+	text-align: center;
+}
+
+footer p {
+	color: #80766a;
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+
+footer #bar {
+	color: #80766a;
+	display: inline-block;
 }
 
 body{
+	height: auto;
 	margin: 0px;
+	padding: 0px;
+	min-height: 100%;
+	overflow-y: scroll;
+	overflow-x: none;
+	font-family: 'Lato', sans-serif;
 }
 
-header  h1 {
+#content {
+	padding: 10px;
+	padding-bottom: 8%;
+}
+
+header #title {
 	margin: 0px;
+	display: inline-block;
+	color: #80766a;
+}
+
+#pageDesc {
+	margin-left: auto;
+	margin-right: auto;
+	width: 60%;
+}
+
+#pageDesc h2 {
+	color: #80766a;
+	text-align: center;
+}
+
+#pageDesc p {
+	text-indent: 50px;
+}
+
+#week {
+	text-align: center;
 }
 
 #important {
@@ -64,15 +157,6 @@ header  h1 {
 	width: 200px;
 }
 
-#add {
-	width: 80px;
-	border: 2px solid black;
-}
-
-#add:hover {
-	cursor: pointer;
-}
-
 #todoText {
 	width: 200px;
 	margin: 0px;
@@ -80,15 +164,133 @@ header  h1 {
 	display: inline;
 }
 
+#add {
+	display: inline-block;
+	color: green;
+	border: 1px solid #e5e5e5;
+	border-radius: 5px;
+	padding-left: 3px;
+	padding-right: 3px;
+	margin-left: 30px;
+}
+
+#add:hover {
+	cursor: pointer;
+}
+
 .del {
-	width: 100px;
-	margin-right: 0px;
-	margin-left: 10px;
-	padding: 0px;
-	display: inline;
-	border: 1px solid black;
+	color: red;
+	background-color: white;
+	border: 1px solid #e5e5e5;
+	border-radius: 5px;
+	padding-left: 3px;
+	padding-right: 3px;
+	margin-left: 30px;
 }
 
 .del:hover {
 	cursor: pointer;
+}
+
+#special {
+	text-align: center;
+}
+
+#instructions {
+	text-align: left;
+	text-indent: 50px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 40%;
+}
+
+#instructions h2 {
+	text-align: center;
+	font-size: 30px;
+	color: #80766a;
+}
+
+#termsCheckBox {
+	font-size: 12px;
+}
+
+#error {
+	background-color: pink;
+	border: 4px dotted red;
+	color: red;
+	font-size: 15px;
+	display: inline-block;
+	padding: 5px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 40%;
+}
+
+#forecastTable {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#currentWeather {
+	text-align: center;
+	/*border: 2px solid black;*/
+	display: inline-block;
+	margin-left: auto;
+	margin-right: auto;
+	padding:  0px 30px 30px 30px;
+}
+
+#currentWeather p {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+#current {
+	display:inline-block;
+	padding-right: 10%;
+}
+
+#current h3 {
+	text-align: center;
+	font-size: 20px;
+}
+
+#todo {
+	display: inline-block;
+}
+
+#currentSettings {
+	display: inline-block;
+}
+
+#currentSettings ul {
+	text-align: left;
+}
+
+#cursetContainer {
+	text-align: center;
+}
+
+#present {
+	text-align: center;
+	margin-bottom: 80px;
+}
+
+#present h2 {
+	text-align: center;
+	font-size: 30px;
+	margin-bottom: 5px;
+}
+
+#presentDate {
+	margin-top: 0px;
+}
+
+#listContainer {
+	text-align: left;
+}
+
+#weatherIcon {
+	width: 100px;
+	height: 100px;
 }

@@ -51,4 +51,5 @@
 					"$zip\n";
 	file_put_contents("../../users/$name/settings.txt", $newSettings);
 	header("Location: ../../users/$name/settings.php");
+	die();
 ?>
