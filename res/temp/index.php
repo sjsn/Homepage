@@ -25,6 +25,7 @@
 <html>
 <head>
 	<title><?=$displayName ?> Homepage</title>
+	<link rel="icon" type="image/ico" href="../../res/img/favicon.ico" sizes="32x32">
 	<link rel="stylesheet" type="text/css" href="../../res/css/main.css">
 	<!-- Google Font: Lato -->
 	<link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
@@ -42,6 +43,7 @@
 				</div>
 			</div>
 			<a href="." id="webname">
+				<img src="../../res/img/logo.png" id="logo" alt="logo" />
 				<h1 id="title"><?=$displayName ?> Homepage</h1>
 			</a>
 		</header>
@@ -49,30 +51,32 @@
 			<div id="present">
 				<h2>Today</h2>
 				<h3 id="presentDate"></h3>
-				<div id="current">
-					<h3>Current Weather:</h3>
-					<div id="currentWeather">
-						<img src="../../res/img/loading.gif" id="currentloading" />
-						<div id="currenterror">
-						</div>
-					</div>
-				</div>
-				<div id="todo">
-					<h3>ToDo List</h3>
-					<img src="../../res/img/loading.gif" id="todoloading" />
-					<div id="listContainer">
-						<p id="notodo">
-						</p>
-						<table id="list">
-						</table>
-						<div id="addItem">
-							<br />
-							<input type="text" name="newItem" id="newItem" placeholder="e.g. Buy Milk" />
-							<div id="add">
-								Add
+				<div id="currentContent">
+					<div id="current">
+						<img src="../../res/img/loading.gif" id="currentloading" alt="loading" />
+						<div id="currentWeather">
+							<div id="currenterror">
 							</div>
 						</div>
-						<div id="addError">
+					</div>
+					<div id="todo">
+						<h3>ToDo List</h3>
+						<img src="../../res/img/loading.gif" id="todoloading" alt="loading" />
+						<div id="listContainer">
+							<p id="todoerror">
+							</p>
+							<table id="list">
+							</table>
+							<div id="addItem">
+								<br />
+								<input type="text" name="newItem" id="newItem" size="30" maxlength="30" 
+								placeholder="e.g. Buy Milk (30 char limit)" />
+								<div id="add">
+									Add
+								</div>
+								<div id="addError">
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -80,13 +84,12 @@
 			<div id="week">
 				<h3>This Week:</h3>
 				<div id="forecast">
-					<img src="../../res/img/loading.gif" id="forecastloading" />
+					<img src="../../res/img/loading.gif" id="forecastloading" alt="loading" />
 					<div id="forecasterror">
 					</div>
 				</div>
 			</div>
 		</div>
-			</div>
 		<footer>
 			<p>Created by <span id="signature">Samuel San Nicolas</span></p>
 			<div id="links">

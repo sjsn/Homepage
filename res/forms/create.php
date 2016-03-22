@@ -5,7 +5,7 @@
 		die();
 	}
 
-	if ($_POST["username"] != "" && $_POST["pass1"] !="" && $_POST["pass2"] != "") {
+	if ($_POST["username"] != "" && $_POST["pass1"] != "" && $_POST["pass2"] != "") {
 		$username = $_POST["username"];
 		if (strcmp($_POST["pass1"], $_POST["pass2"])) {
 			$error = "Passwords did not match. Please try again.";
@@ -59,10 +59,25 @@
 	$newaccount = "$username|$pass\n";
 	file_put_contents("../../res/logins.txt", $newaccount, FILE_APPEND);
 
+	$date = getdate();
+	$day = $date["mday"];
+	$month = $date["mon"];
+	$year = $date["year"];
+	$today = "$year/$month/$day";
+
 	mkdir("../../users/$username/");
+
+	# Creates 7 blank todo.txt files, one for every day of the week
+	for ($i = 0; $i < 7; $i++) {
+		$todayEpoch = strtotime($today);
+		touch("../../users/$username/$todayEpoch.txt");
+		# Currently broken. Works until the end of the month. Gotta fix
+		$day++;
+		$today = "$year/$month/$day";
+	}
+
 	touch("../../users/$username/index.php");
 	touch("../../users/$username/settings.txt");
-	touch("../../users/$username/todo.txt");
 	touch("../../users/$username/settings.php");
 	touch("../../users/$username/.htaccess");
 	copy("../../res/temp/index.php", "../../users/$username/index.php");

@@ -24,6 +24,10 @@
 	padding: 5px;
 }
 
+#nav div {
+	margin-left: 5px;
+}
+
 a {
 	color: #80766a;
 }
@@ -76,7 +80,7 @@ body{
 	padding: 0px;
 	min-height: 100%;
 	overflow-y: scroll;
-	overflow-x: none;
+	overflow-x: hidden;
 	font-family: 'Lato', sans-serif;
 }
 
@@ -145,6 +149,11 @@ header #title {
 	border-collapse: collapse;
 }
 
+#forecastTable p {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
 #settingsForm legend {
 	margin-left: auto;
 	margin-right: auto;
@@ -157,13 +166,6 @@ header #title {
 	width: 200px;
 }
 
-#todoText {
-	width: 200px;
-	margin: 0px;
-	padding: 0px;
-	display: inline;
-}
-
 #add {
 	display: inline-block;
 	color: green;
@@ -171,11 +173,7 @@ header #title {
 	border-radius: 5px;
 	padding-left: 3px;
 	padding-right: 3px;
-	margin-left: 30px;
-}
-
-#add:hover {
-	cursor: pointer;
+	margin-left: 15px;
 }
 
 .del {
@@ -186,10 +184,7 @@ header #title {
 	padding-left: 3px;
 	padding-right: 3px;
 	margin-left: 30px;
-}
-
-.del:hover {
-	cursor: pointer;
+	font-size: 12px;
 }
 
 #special {
@@ -257,6 +252,7 @@ header #title {
 
 #todo {
 	display: inline-block;
+	vertical-align: top;
 }
 
 #currentSettings {
@@ -290,7 +286,53 @@ header #title {
 	text-align: left;
 }
 
-#weatherIcon {
+#weatherIcon, #weatherIconCurrent {
 	width: 100px;
 	height: 100px;
+}
+
+#weatherIcon {
+	padding-bottom: 15px;
+}
+
+#weatherIconCurrent {
+	padding-bottom: 30px;
+}
+
+#temperatureCurrent {
+	padding-bottom: 15px;
+	font-size: 25px;
+	font-weight: bold;
+}
+
+#temperature {
+	padding-bottom: 7px;
+	font-size: 20px;
+}
+
+#todoerror {
+	color: red;
+	font-style: italic;
+}
+
+#addItem {
+	text-align: right;
+}
+
+#list p {
+	margin: 0px;
+}
+
+#add:hover, .del:hover, #list p:hover {
+	cursor: pointer;
+}
+
+#logo {
+	height: 32px;
+	width: 32px;
+	margin-right: 8px;
+}
+
+#tableTitle:hover {
+	cursor: pointer;
 }

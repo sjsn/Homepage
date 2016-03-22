@@ -17,6 +17,7 @@
 <html>
 <head>
 	<title><?=$displayName ?> Settings</title>
+	<link rel="icon" type="image/ico" href="../../res/img/favicon.ico" sizes="32x32">
 	<link rel="stylesheet" type="text/css" href="../../res/css/main.css">
 	<!-- Google Font: Lato -->
 	<link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
@@ -30,6 +31,7 @@
 				</div>
 			</div>
 			<a href="../../" id="webname">
+				<img src="../../res/img/logo.png" id="logo" alt="logo" />
 				<h1 id="title"><?=$displayName ?> Homepage</h1>
 			</a>
 		</header>

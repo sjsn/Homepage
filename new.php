@@ -16,6 +16,7 @@
 <html>
 <head>
 	<title>Create an Account</title>
+	<link rel="icon" type="image/ico" href="./res/img/favicon.ico" sizes="32x32">
 	<link rel="stylesheet" type="text/css" href="./res/css/main.css">
 </head>
 <body>
@@ -34,6 +35,7 @@
 				</form>
 			</div>
 			<a href="." id="webname">
+				<img src="./res/img/logo.png" id="logo" alt="logo" />
 				<h1 id="title">Homepage</h1>
 			</a>
 		</header>
