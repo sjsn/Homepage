@@ -4,14 +4,6 @@
 	Weather icons obtained from http://www.flaticon.com/authors/icon-works
 */
 
-/*
-	BUGS:
-	- "current" weather doesn't change when a different day is selected
-	- No way of changing file structure of todo lists when it's a new day
-	- Temperature (deg F/ deg C) doesn't change when units are changed
-	- Cities & States with spaces appear without spaces due to php getting rid of spaces
-*/
-
 // Anonymous function to eliminate any global variables
 (function() {
 	"use strict";
@@ -79,32 +71,40 @@
 		country = json.settings.country;
 		state = json.settings.state;
 		zip = json.settings.zip;
-		if (selectedDate == todayEpoch || !todayEpoch) {
-			document.getElementById("currentWeather").innerHTML = "";
-			var d = new Date();
-			var date = d.toDateString();
-			date = date.split(" ");
-			todayEpoch = new Date(date[1] + " " + date[2] + ", " + date[3]).getTime() / 1000;
-			selectedDate = todayEpoch;
-			date = date[0] + ", " + date[1] + " " + 
-			date[2] + ", " + date[3];
-			todayStandard = date;
-			document.getElementById("selected").innerHTML = "Today";
-			document.getElementById("presentDate").innerHTML = todayStandard;
-		} else {
-			var d = new Date(0);
-			d = d.setUTCSeconds(selectedDate);
-			d = new Date(d);
-			var date = d.toDateString();
-			date = date.split(" ");
-			var selectedStandard = date[0] + ", " + date[1] + " " + date[2] + ", " + date[3];
-			document.getElementById("selected").innerHTML = selectedStandard;
-			document.getElementById("presentDate").innerHTML = "";
-			document.getElementById("currentWeather").innerHTML = "";
-		}
+		var d = new Date();
+		var date = d.toDateString();
+		date = date.split(" ");
+		todayEpoch = new Date(date[1] + " " + date[2] + ", " + date[3]).getTime() / 1000;
+		selectedDate = todayEpoch;
+		date = date[0] + ", " + date[1] + " " + 
+		date[2] + ", " + date[3];
+		todayStandard = date;
+		document.getElementById("presentDate").innerHTML = todayStandard;
 
+		/********************************************************************/
+		/*							ToDo:									*/
+		/*		-Change getCurrent to pull data from todayEpoch				*/
+		/*		-Don't update forecast if forecast is set 					*/
+		/*		-Add check to see if currentDate == today                   */
+		/*		-Maybe cache forecast weather and have it update daily?     */
+		/********************************************************************/
+
+		getCurrent();
 		getForecast();
 		getToDo();
+	}
+
+	// Sets up the AJAX request to get the current weather information
+	function getCurrent() {
+		if (selectedDate == todayEpoch) {
+			var php = "weather?q=" + city + "," + state + "," + country + "&zip=" + zip +
+			 "&units=" + units + "&appid=84905f46868c1a6db7f06ff90f12e9ff";
+		} else {
+			var php = "forecast/daily?q=" + city + "," + state + "," + country + 
+			"&zip=" + zip + "&mode=json&units=" + units + 
+			"&cnt=7&appid=84905f46868c1a6db7f06ff90f12e9ff";
+		}
+		ajax(API_URL, php, loadCurrent, "GET", false);
 	}
 
 	// Sets up the AJAX request to get the 7-day forecast weather information
@@ -117,65 +117,73 @@
 
 	/* Displays the current weather information from the weather API.
 	Displays an error message if the information couldn't be obtained*/
-	function loadCurrent(json) {
-		var current = document.getElementById("currentWeather");
-		var icon = document.createElement("img");
-		var cityName = document.createElement("h3");
-		var temp = document.createElement("p");
-		var desc = document.createElement("p");
-		var minMax = document.createElement("p");
-		icon.alt = "weather icon";
-		icon.id = "weatherIconCurrent";
-		cityName.id = "city";
-		cityName.innerHTML = city + ", " + state;
-		temp.id = "temperatureCurrent";
-		var selection;
-		for (var i = 0; i < json.list.length; i++) {
-			// Sets 'selection' to the json array at the selectedDate
-			if (json.list[i].dt == selectedDate) {
-				selection = json.list[i];
-			/* BUG: API changes time different than I do. This is temp fix, but look into permafix */
+	function loadCurrent() {
+		if (this.status == 200) {
+			var current = document.getElementById("currentWeather");
+			var json = JSON.parse(this.responseText);
+			var icon = document.createElement("img");
+			var cityName = document.createElement("h3");
+			var temp = document.createElement("p");
+			var desc = document.createElement("p");
+			var minMax = document.createElement("p");
+			icon.alt = "weather icon";
+			icon.id = "weatherIconCurrent";
+			cityName.id = "city";
+			cityName.innerHTML = city + ", " + state;
+			temp.id = "temperatureCurrent";
+			if (selectedDate == todayEpoch) {
+				icon.src = ICON_URL + json.weather[0].icon + ".png";
+				temp.innerHTML = Math.round(json.main.temp) + "&#8457;";
+				desc.innerHTML = json.weather[0].description;
+				minMax.innerHTML = Math.round(json.main.temp_min) + 
+				"&#8457; / " + Math.round(json.main.temp_max) + "&#8457;";
 			} else {
-				selection = json.list[0];
+				var selection;
+				for (var i = 0; i < json.list.length; i++) {
+					// Sets 'selection' to the json array at the selectedDate
+					if (json.list[i].dt == selectedDate) {
+						selection = json.list[i];
+					}
+				}
+ 				icon.src = ICON_URL + selection.weather.icon;
+ 				temp.innerHTML = Math.round(selection.temp.day) + "&#8457;";
+ 				desc.innerHTML = selection.weather.description.
+ 				minMax.innerHTML = Math.round(selection.temp.min) + "&#8457; / " + 
+ 				Math.round(selection.temp.max) + "&#8457;";
 			}
+			current.appendChild(cityName);
+			current.appendChild(icon);
+			current.appendChild(temp);
+			current.appendChild(desc);
+			current.appendChild(minMax);
+		} else if (this.status == 429) {
+			var error = document.getElementById("currenterror");
+			error.innerHTML =  "The server is " + 
+			"experiencing too many requests at this time. Please " + 
+			"<a href=\"./\">refresh</a> the page to try again.";
+		} else {
+			var error = document.getElementById("currenterror");
+			error.innerHTML = "There was an error loading the weather data. " +  
+			"Please <a href=\"./\">refresh</a> the page to try again.";
 		}
-		icon.src = ICON_URL + selection.weather[0].icon + ".png";
-		temp.innerHTML = Math.round(selection.temp.day) + "&#8457;";
-		desc.innerHTML = selection.weather[0].description;
-		minMax.innerHTML = Math.round(selection.temp.min) + "&#8457; / " + 
-		Math.round(selection.temp.max) + "&#8457;";
-		current.appendChild(cityName);
-		current.appendChild(icon);
-		current.appendChild(temp);
-		current.appendChild(desc);
-		current.appendChild(minMax);
+		document.getElementById("currentloading").style.display = "none";
 	}
 
 	/* Displays the 7-day forecast weather information from the weather API.
 	If the information couldn't be obtained, displays an error message */
 	function loadForecast() {
-		var error1 = document.getElementById("forecasterror");
-		var error2 = document.getElementById("currenterror");
+		var error = document.getElementById("forecasterror");
 		if (this.status == 200) {
 			var json = JSON.parse(this.responseText);
-			loadCurrent(json);
-			if (!document.getElementById("forecastTable")) {
-				createTable(json);
-			}
+			createTable(json);
 		} else if (this.status  == 429) {
-			error1.innerHTML =  "The server is " + 
-			"experiencing too many requests at this time. Please " + 
-			"<a href=\"./\">refresh</a> the page to try again.";
-			error2.innerHTML =  "The server is " + 
+			error.innerHTML =  "The server is " + 
 			"experiencing too many requests at this time. Please " + 
 			"<a href=\"./\">refresh</a> the page to try again.";
 		} else {
-			error1.innerHTML = "There was an error loading the weather data. " +  
-			"Please <a href=\"./\">refresh</a> the page to try again.";
-			error2.innerHTML = "There was an error loading the weather data. " +  
+			error.innerHTML = "There was an error loading the weather data. " +  
 			"Please <a href=\"./\">refresh</a> the page to try again.";
 		}
-		document.getElementById("currentloading").style.display = "none";
 		document.getElementById("forecastloading").style.display = "none";
 	}
 
@@ -231,15 +239,7 @@
 
 	// Changes the selectedDate to the date of the forecast title that was clicked
 	function changeDate() {
-		var titles = document.querySelectorAll("#tableTitle");
-		for (var i = 0; i < titles.length; i++) {
-			titles[i].style.backgroundColor = "white";
-			if (titles[i].innerHTML == todayStandard) {
-				titles[i].style.backgroundColor = "pink";
-			}
-		}
 		var selected = this;
-		this.style.backgroundColor = "#6EFF70";
 		var newDate = this.innerHTML;
 		newDate = newDate.split(", ");
 		newDate = newDate[1] + ", " + newDate[2];

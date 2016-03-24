@@ -12,9 +12,8 @@
 		/* Checks to see if the entered username matches the username of
 		the person logged in for added security. */
 		if (strcmp($u, $n)) {
-			$error = "You must be logged in to check that data.";
-			header("Location: ../../?error=$error");
-			die();
+			header("HTTP/1.1 Invalid Login");
+			die("You must be logged in to the account to view that information.");
 		}
 	} else {
 		header("HTTP/1.1 Invalid Request");
@@ -43,6 +42,16 @@
 		// Makes JSON for a single date, used for displaying data in main.js
 		if (isset($_GET["date"])) {
 			$today = $_GET["date"];
+			if (!file_exists("../../users/$n/$today.txt")) {
+				touch("../../users/$n/$today.txt");
+				# 86400 is one day in epoch time
+				$twoDaysAgo = $today - (86400 * 2);
+				/* If there's a ToDo List from two days ago, delete it.
+				Saves yesterdays ToDo List since weather API updates funny... */
+				if (file_exists("../../users/$n/$twoDaysAgo.txt")) {
+					unlink("../../users/$n/$twoDaysAgo.txt");
+				}
+			}
 			$todoFile = file("../../users/$n/$today.txt");
 			$data = array();
 			$todoData = array();
@@ -63,13 +72,18 @@
 			makeJSON($data);
 		// Makes JSON for every date, used for debugging
 		} else {
-			$today = $_GET["date"];
-			$todoFile = file("../../users/$n/$today.txt");
+			$date = getdate();
+			$day = $date["mday"];
+			$month = $date["mon"];
+			$year = $date["year"];
+			$today = "$year/$month/$day";
+			$today = strtotime($today);
 			$data = array();
-			$todoData = array();
-			$todoDataHolder = array();
-			$todoComplete = array();
 			for ($i = 0; $i < 7; $i++) {
+				$todoFile = file("../../users/$n/$today.txt");
+				$todoComplete = array();
+				$todoDataHolder = array();
+				$todoData = array();
 				foreach($todoFile as $items) {
 					$value = explode("|", $items);
 					$input = trim($value[0]);

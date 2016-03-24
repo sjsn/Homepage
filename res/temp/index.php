@@ -49,14 +49,14 @@
 		</header>
 		<div id="content">
 			<div id="present">
-				<h2>Today</h2>
+				<h2 id="selected"></h2>
 				<h3 id="presentDate"></h3>
 				<div id="currentContent">
 					<div id="current">
 						<img src="../../res/img/loading.gif" id="currentloading" alt="loading" />
-						<div id="currentWeather">
-							<div id="currenterror">
-							</div>
+						<div id="currenterror">
+						</div>
+						<div id="currentWeather">	
 						</div>
 					</div>
 					<div id="todo">
