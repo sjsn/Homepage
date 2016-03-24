@@ -4,14 +4,6 @@
 	Weather icons obtained from http://www.flaticon.com/authors/icon-works
 */
 
-/*
-	BUGS:
-	- "current" weather doesn't change when a different day is selected
-	- No way of changing file structure of todo lists when it's a new day
-	- Temperature (deg F/ deg C) doesn't change when units are changed
-	- Cities & States with spaces appear without spaces due to php getting rid of spaces
-*/
-
 // Anonymous function to eliminate any global variables
 (function() {
 	"use strict";
@@ -19,6 +11,7 @@
 	var city = ""; // The set city (default="Seattle")
 	var country = "";  // The set country (default="UnitedStates")
 	var units = ""; // The set units (default="imperial")
+	var unitSym = "";
 	var state = ""; // The set state (default="Washington")
 	var zip = ""; // The set zip code (default="98105")
 	var name = ""; // The users' username
@@ -75,6 +68,11 @@
 	function setSettings() {
 		var json = JSON.parse(this.responseText);
 		units  = json.settings.units;
+		if (units == "imperial") {
+			unitSym = "&#8457;";
+		} else {
+			unitSym = "&#8451;";
+		}
 		city = json.settings.city;
 		country = json.settings.country;
 		state = json.settings.state;
@@ -129,21 +127,38 @@
 		cityName.id = "city";
 		cityName.innerHTML = city + ", " + state;
 		temp.id = "temperatureCurrent";
+		var d = new Date();
+		var hours = d.getHours();
+		var mins = d.getMinutes();
+		if (mins <= 30) {
+			mins = 0;
+		} else {
+			mins = 1;
+		}
+		d = (hours + mins) * 3600;
+		// The current time in hours converted to epoch
+		d = selectedDate + d;
 		var selection;
 		for (var i = 0; i < json.list.length; i++) {
-			// Sets 'selection' to the json array at the selectedDate
-			if (json.list[i].dt == selectedDate) {
-				selection = json.list[i];
-			/* BUG: API changes time different than I do. This is temp fix, but look into permafix */
+			/* Sets 'selection' to the json array at the selectedDate + hours
+			Have to check if the time is +- 7 hours from the current time due
+			to inconsistencies with weather API */
+			if (json.list[i].dt != d) {
+				for (var j = 0; j < 7; j++) {
+					if (json.list[i].dt == (d - (3600 * j)) || 
+						json.list[i].dt == (d + (3600 * j))) {
+						selection = json.list[i];
+					}
+				}
 			} else {
-				selection = json.list[0];
+				selection = json.list[i];
 			}
 		}
 		icon.src = ICON_URL + selection.weather[0].icon + ".png";
-		temp.innerHTML = Math.round(selection.temp.day) + "&#8457;";
+		temp.innerHTML = Math.round(selection.temp.day) + unitSym;
 		desc.innerHTML = selection.weather[0].description;
-		minMax.innerHTML = Math.round(selection.temp.min) + "&#8457; / " + 
-		Math.round(selection.temp.max) + "&#8457;";
+		minMax.innerHTML = Math.round(selection.temp.min) + unitSym + " / " + 
+		Math.round(selection.temp.max) + unitSym;
 		current.appendChild(cityName);
 		current.appendChild(icon);
 		current.appendChild(temp);
@@ -204,17 +219,19 @@
 			}
 			title.innerHTML = dataDate;
 			var cell = document.createElement("td");
+			cell.id = dataDate;
+			cell.onclick = changeDate;
 			var icon = document.createElement("img");
 			icon.alt = "weather icon";
 			icon.src = ICON_URL + json.list[i].weather[0].icon + ".png";
 			icon.id = "weatherIcon";
 			var temp = document.createElement("p");
 			temp.id = "temperature";
-			temp.innerHTML = Math.round(json.list[i].temp.day) + "&#8457;";
+			temp.innerHTML = Math.round(json.list[i].temp.day) + unitSym;
 			var minMax = document.createElement("p");
 			minMax.id = "tableMinMax";
-			minMax.innerHTML = Math.round(json.list[i].temp.min) + "&#8457; / " + 
-			Math.round(json.list[i].temp.max) + "&#8457;";
+			minMax.innerHTML = Math.round(json.list[i].temp.min) + unitSym + " / " + 
+			Math.round(json.list[i].temp.max) + unitSym;
 			var desc = document.createElement("p");
 			desc.innerHTML = json.list[i].weather[0].description;
 			cell.appendChild(icon);
@@ -231,16 +248,22 @@
 
 	// Changes the selectedDate to the date of the forecast title that was clicked
 	function changeDate() {
+		if (this.id == "tableTitle") {
+			var newDate = this.innerHTML;
+		} else {
+			var newDate = this.id;
+		}
 		var titles = document.querySelectorAll("#tableTitle");
 		for (var i = 0; i < titles.length; i++) {
-			titles[i].style.backgroundColor = "white";
 			if (titles[i].innerHTML == todayStandard) {
+				titles[i].style.backgroundColor = "#6EFF70";
+			} else if (titles[i].innerHTML == newDate && 
+				titles[i].innerHTML != todayStandard) {
 				titles[i].style.backgroundColor = "pink";
+			} else {
+				titles[i].style.backgroundColor = "white";
 			}
 		}
-		var selected = this;
-		this.style.backgroundColor = "#6EFF70";
-		var newDate = this.innerHTML;
 		newDate = newDate.split(", ");
 		newDate = newDate[1] + ", " + newDate[2];
 		// New date as epoch

@@ -65,17 +65,38 @@
 				}
 				?>
 			</div>
+			<p id="formInstr"><span id="required">*</span> = required</p>
 			<div id="createForm">
 				<form action="./res/forms/create.php" method="post">
+					<h3>Account Information:</h3>
 					Username:
-					<input type="text" name="username" placeholder="e.g. billybob123" /><br />
+					<input type="text" name="username" placeholder="e.g. billybob123" maxlength="12" />
+					<span id="required">*</span><br />
 					Password:
-					<input type="password" name="pass1" placeholder="e.g. Password123" /><br />
+					<input type="password" name="pass1" placeholder="e.g. Password123" maxlength="12" />
+					<span id="required">*</span><br />
 					Confirm Password:
-					<input type="password" name="pass2" placeholder="e.g. Password123" /><br />
+					<input type="password" name="pass2" placeholder="e.g. Password123" maxlength="12"/>
+					<span id="required">*</span><br />
+					<h3>Account Settings:</h3>
+					<p>Default settings are imperial units and Seattle, Washington.</p>
+					Units: 
+					Imperial: 
+					<input type="radio" name="units" value="imperial" />
+					Celcius: 
+					<input type="radio" name="units" value="metric" /><br />
+					City:
+					<input type="text" name="city" placeholder="e.g. Seattle" /><br />
+					State: 
+					<input type="text" name="state" placeholder="e.g. Washington" /><br />
+					Country: 
+					<input type="text" name="country" placeholder="e.g. United Staes" /><br />
+					Zip Code: 
+					<input type="number" name="zip" placeholder="e.g. 98105" maxlength="5"/><br />
 					<br />
 					<input type="checkbox" name="terms" unchecked />
-					<a href="terms.html" id="termsCheckBox">I have read and agree to the terms of service.</a><br />
+					<a href="terms.html" id="termsCheckBox">I have read and agree to the terms of service.</a>
+					<span id="required">*</span><br />
 					<br />
 					<input type="submit" value="Create Account">
 				</form>

@@ -124,13 +124,32 @@ header #title {
 	text-align: center;
 }
 
+#required {
+	color: red;
+}
+
+#formInstr {
+	margin-top: 5%;
+	margin-bottom: 0px;
+	text-align: center;
+}
+
+#createForm p {
+	font-size: 12px;
+	font-style: italic;
+	margin-top: 0px;
+}
+
+#settingsForm {
+	margin-top: 5%;
+}
+
 #createForm, #settingsForm{
 	width: 20%;
 	margin-left: auto;
 	margin-right: auto;
 	border: 2px solid grey;
 	text-align: center;
-	margin-top: 5%;
 	padding: 5px;
 }
 
@@ -228,7 +247,6 @@ header #title {
 
 #currentWeather {
 	text-align: center;
-	/*border: 2px solid black;*/
 	display: inline-block;
 	margin-left: auto;
 	margin-right: auto;
@@ -333,6 +351,7 @@ header #title {
 	margin-right: 8px;
 }
 
-#tableTitle:hover {
+#forecastTable td:hover {
 	cursor: pointer;
 }
+

@@ -77,13 +77,40 @@
 	}
 
 	touch("../../users/$username/index.php");
-	touch("../../users/$username/settings.txt");
 	touch("../../users/$username/settings.php");
 	touch("../../users/$username/.htaccess");
 	copy("../../res/temp/index.php", "../../users/$username/index.php");
-	copy("../../res/temp/settings.txt", "../../users/$username/settings.txt");
 	copy("../../res/temp/settings.php", "../../users/$username/settings.php");
 	copy("../../res/temp/.htaccess", "../../users/$username/.htaccess");
+
+	if (isset($_POST["units"])) {
+		$units = $_POST["units"];
+	} else {
+		$units = "imperial";
+	}
+	if (isset($_POST["city"])) {
+		$city = $_POST["city"];
+	} else {
+		$city = "Seattle";
+	}
+	if (isset($_POST["state"])) {
+		$state = $_POST["state"];
+	} else {
+		$state = "Washington";
+	}
+	if (isset($_POST["country"])) {
+		$country = $_POST["country"];
+	} else {
+		$country = "UnitedStates";
+	}
+	if (isset($_POST["zip"])) {
+		$zip = $_POST["zip"];
+	} else {
+		$zip = "98105";
+	}
+
+	$settings = "$units\n$city\n$state\n$country\n$zip";
+	file_put_contents("../../users/$username/settings.txt", $settings);
 
 	$_SESSION["name"] = $username;
 	header("Location: ../../users/$username/");

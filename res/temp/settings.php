@@ -68,7 +68,7 @@
 					Country:
 					<input type="text" name="country" placeholder="United States" /><br />
 					Zip Code:
-					<input type="text" name="zip" placeholder="98105" /><br />
+					<input type="number" name="zip" placeholder="98105" maxlength="5" /><br />
 					<br />
 					<input type="submit" value="Submit" />
 				</form>

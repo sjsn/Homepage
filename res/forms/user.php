@@ -43,6 +43,7 @@
 		if (isset($_GET["date"])) {
 			$today = $_GET["date"];
 			if (!file_exists("../../users/$n/$today.txt")) {
+				# Creates the new ToDo file if none exists
 				touch("../../users/$n/$today.txt");
 				# 86400 is one day in epoch time
 				$twoDaysAgo = $today - (86400 * 2);
