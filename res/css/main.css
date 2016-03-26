@@ -355,3 +355,24 @@ header #title {
 	cursor: pointer;
 }
 
+#deleteContainer {
+	width: 100%;
+	text-align: center;
+}
+
+#deleteForm {
+	font-size: 12px;
+	display: inline-block;
+	text-align: center;
+	margin-top: 25px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#deleteForm h2, #deleteForm input[type="button"] {
+	color: red;
+}
+
+#deleteForm h2 {
+	font-size: 20px;
+}

@@ -8,11 +8,14 @@
 
 	# Starts the sesssion to pull the users' name
 	session_start();
+
+	# Checks if someone is trying to access a different users file
 	if(!isset($_SESSION["name"])) {
 		header("Location: ../../");
 		die();
 	}
 
+	# Makes sure that the required parameters are set. Redirects if not
 	if (isset($_GET["mode"]) && isset($_GET["username"])) {
 		$u = $_GET["username"];
 		$n = $_SESSION["name"];
@@ -28,7 +31,7 @@
 		die("Invalid request, please check your parameters and try again.");
 	}
 
-	# If mode is account, makes json for account settings
+	# Makes json for account settings
 	if ($mode == "account") {
 		$settingsFile = file("../../users/$n/settings.txt");
 		list($units, $city, $state, $country, $zip) = $settingsFile;
@@ -37,7 +40,7 @@
 			"city" => trim($city),
 			"state" => trim($state),
 			"country" => trim($country),
-			"zip" => trim($zip),
+			"zip" => trim($zip)
 		);
 
 		$data = array(
@@ -45,23 +48,28 @@
 			"settings" => $settingsData
 		);
 		makeJSON($data);
-	# If mode is todo, makes json for ToDo List data
+	# Makes json for ToDo List data
 	} else if ($mode == "todo") {
 		// Makes JSON for a single date, used for displaying data in main.js
 		if (isset($_GET["date"])) {
 			$today = $_GET["date"];
-			$today = str_split($today);
-			if ($today[count($today) - 1] == 0 && count($today) == 10) {
-				$today = implode("", $today);
+			# Check to make sure date parameter is accurate
+			if ($today % 2 == 0 && strlen($today) >= 10) {
+				# Handles creation of a new days ToDo list
 				if (!file_exists("../../users/$n/$today.txt")) {
 					# Creates the new ToDo file if none exists
 					touch("../../users/$n/$today.txt");
 					# 86400 is one day in epoch time
-					$sevenDaysAgo = $today - (86400 * 8);
-					/* If there's a ToDo List from 8 days ago, delete it.
+					$eightDaysAgo = $today - (86400 * 8);
+					/* If there's a ToDo List from 8 days ago or before, delete it.
 					Saves 7 ToDo Lists since weather API updates funny. */
-					if (file_exists("../../users/$n/$sevenDaysAgo.txt")) {
-						unlink("../../users/$n/$sevenDaysAgo.txt");
+					$files = glob("../../users/$n/*.txt");
+					foreach($files as $file) {
+						$file = explode("/", $file);
+						if (strcmp($file[4], "settings.txt") && intval($file[4]) <= $eightDaysAgo ) {
+							$file = implode("/", $file);
+							unlink("$file");
+						}
 					}
 				}
 			} else {
@@ -123,6 +131,7 @@
 		die("Invalid request, please check your parameters and try again.");
 	}
 
+	# Helper function to turn the passed in data into JSON
 	function makeJSON($data) {
 		header("Content-type: application/json");
 		print json_encode($data);

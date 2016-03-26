@@ -1,12 +1,22 @@
 <?php
+
+	/*
+		Created by Samuel San Nicolas - 3/19/2016
+		This page takes in the users data from new.php and tries to create
+		a new account. If it can't, throws an error and redirects.
+	*/
+
+	# Starts the sesssion to pull the users' name
 	session_start();
 	if (isset($_SESSION["name"])) {
 		header("Location: ../../?error=loggedin");
 		die();
 	}
 
+	# Check to see if the username/password fields were filled in
 	if ($_POST["username"] != "" && $_POST["pass1"] != "" && $_POST["pass2"] != "") {
 		$username = $_POST["username"];
+		# Check to see if the password and the check matched
 		if (strcmp($_POST["pass1"], $_POST["pass2"])) {
 			$error = "Passwords did not match. Please try again.";
 			header("Location: ../../new.php?error=$error");
@@ -19,6 +29,7 @@
 		die();
 	}
 
+	# Check to see if the user checked the terms and conditions
 	if ($_POST["terms"] == false) {
 		$error = "You must accept the terms and condition to create an account.";
 		header("Location: ../../new.php?error=$error");
@@ -43,10 +54,12 @@
 		die();
 	}
 	
+	# Creates the logins.txt file if there isn't one already
 	if (!file_exists("../logins.txt")) {
 		touch("../logins.txt");
 	}
 
+	# Adds the new user to the logins.txt file so they can login in the future
 	$file = file("../logins.txt");
 	foreach($file as $lines) {
 		$accounts = explode("|", trim($lines));
@@ -59,23 +72,40 @@
 	$newaccount = "$username|$pass\n";
 	file_put_contents("../../res/logins.txt", $newaccount, FILE_APPEND);
 
+	# Creates the new users' directory
+	mkdir("../../users/$username/");
+
+	# Gets the current date's day, month, and year
 	$date = getdate();
 	$day = $date["mday"];
 	$month = $date["mon"];
 	$year = $date["year"];
-	$today = "$year/$month/$day";
-
-	mkdir("../../users/$username/");
-
 	# Creates 7 blank todo.txt files, one for every day of the week
 	for ($i = 0; $i < 7; $i++) {
+		$today = "$year/$month/$day";
 		$todayEpoch = strtotime($today);
+		/* strtotime returns null if not a valid date (i.e. 2016/01/32).
+		Fixes month and day if invalid (end of month rollover) */
+		if (!$todayEpoch) {
+			$day = 1;
+			$month++;
+			$today = "$year/$month/$day";
+			$todayEpoch = strtotime($today);
+		}
+		# Fixes month, day, year if STILL invalid (end of year rollover)
+		if (!$todayEpoch) {
+			$year++;
+			$month = 1;
+			$day = 1;
+			$today = "$year/$month/$day";
+			$todayEpoch = strtotime($today);
+		}
 		touch("../../users/$username/$todayEpoch.txt");
 		# Currently broken. Works until the end of the month. Gotta fix
 		$day++;
-		$today = "$year/$month/$day";
 	}
 
+	# Creates files in the users' directory
 	touch("../../users/$username/index.php");
 	touch("../../users/$username/settings.php");
 	touch("../../users/$username/.htaccess");
@@ -83,27 +113,28 @@
 	copy("../../res/temp/settings.php", "../../users/$username/settings.php");
 	copy("../../res/temp/.htaccess", "../../users/$username/.htaccess");
 
-	if (isset($_POST["units"])) {
+	# Sets the settings to either user defined or defaults
+	if (isset($_POST["units"]) && $_POST["units"] != "") {
 		$units = $_POST["units"];
 	} else {
 		$units = "imperial";
 	}
-	if (isset($_POST["city"])) {
+	if (isset($_POST["city"]) && $_POST["city"] != "") {
 		$city = $_POST["city"];
 	} else {
 		$city = "Seattle";
 	}
-	if (isset($_POST["state"])) {
+	if (isset($_POST["state"]) && $_POST["state"] != "") {
 		$state = $_POST["state"];
 	} else {
 		$state = "Washington";
 	}
-	if (isset($_POST["country"])) {
+	if (isset($_POST["country"]) && $_POST["country"] != "") {
 		$country = $_POST["country"];
 	} else {
 		$country = "UnitedStates";
 	}
-	if (isset($_POST["zip"])) {
+	if (isset($_POST["zip"]) && $_POST["zip"] != "") {
 		$zip = $_POST["zip"];
 	} else {
 		$zip = "98105";
@@ -112,6 +143,7 @@
 	$settings = "$units\n$city\n$state\n$country\n$zip";
 	file_put_contents("../../users/$username/settings.txt", $settings);
 
+	# Redirects the user to their homepage in their directory
 	$_SESSION["name"] = $username;
 	header("Location: ../../users/$username/");
 	die();

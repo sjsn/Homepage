@@ -1,5 +1,4 @@
 <?php
-
 	# Starts the sesssion to pull the users' name
 	session_start();
 	if (!isset($_SESSION["name"])) {
@@ -74,6 +73,17 @@
 					<br />
 					<input type="submit" value="Submit" />
 				</form>
+			</div>
+			<div id="deleteContainer">
+				<div id="deleteForm">
+					<h2>Delete Account</h2>
+					<form action="../../res/forms/delete.php" method="post">
+						Are you sure?<br />
+						<input type="checkbox" name="confirm" unchecked />Yes, I am sure<br />
+						<br />
+						<input type="submit" value="delete" />
+					</form>
+				</div>
 			</div>
 		</div>
 		<footer>

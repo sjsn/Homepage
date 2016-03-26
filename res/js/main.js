@@ -142,7 +142,7 @@
 		var selection;
 		for (var i = 0; i < json.list.length; i++) {
 			/* Sets 'selection' to the json array at the selectedDate + hours
-			Have to check if the time is +- 12 hours from the current time due
+			Have to check if the time is +- 14 hours from the current time due
 			to inconsistencies with weather API */
 			if (json.list[i].dt != d) {
 				for (var j = 0; j < 14; j++) {

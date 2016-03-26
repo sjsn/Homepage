@@ -1,16 +1,25 @@
 <?php
+	# Starts the sesssion to pull the users' name
 	session_start();
 
+	/* Check to see if a user is logged in. If they are, redirects them to their
+	own homepage in their directory */
 	if (isset($_SESSION["name"])) {
 		$name = $_SESSION["name"];
 		header("Location: ./users/$name/");
 		die();
 	}
 
+	# Cehck to see if there any error was thrown
 	if (isset($_GET["error"])) {
 		$error = $_GET["error"];
 	}
 ?>
+
+<!--
+	Created by Samuel San Nicolas - 3/19/2016
+	This page allows the user to enter information to create a new account.
+-->
 
 <!DOCTYPE html>
 <html>
