@@ -1,4 +1,12 @@
 <?php
+
+	/*
+		Created by Samuel San Nicolas - 3/19/2016
+		This page takes the setting information entered in the users' Settings
+		page. Saves all information into the users' settings.txt file.
+	*/
+
+	# Starts the sesssion to pull the users' name
 	session_start();
 	if (!isset($_SESSION["name"])) {
 		header("Location: ../../?error=login");
@@ -36,7 +44,6 @@
 	} else {
 		$zip = $_POST["zip"];
 	}
-
 
 	if (isset($_POST["unit"])) {
 		$unit = $_POST["unit"];

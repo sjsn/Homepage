@@ -1,4 +1,6 @@
 <?php
+
+	# Starts the sesssion to pull the users' name
 	session_start();
 	if (!isset($_SESSION["name"])) {
 		$error = "Please log in to change any settings.";
@@ -78,7 +80,7 @@
 			<p>Created by <span id="signature">Samuel San Nicolas</span></p>
 			<div id="links">
 				<a href="https://github.com/sjsn">github</a> 
-				<div id="bar"> | </div> 
+				<span id="bar"> | </span> 
 				<a href="http://www.samuelsannicolas.com">online portfolio</a>
 			</div>
 		</footer>

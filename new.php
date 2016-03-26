@@ -106,7 +106,7 @@
 				<p>Created by <span id="signature">Samuel San Nicolas</span></p>
 				<div id="links">
 					<a href="https://github.com/sjsn">github</a> 
-					<div id="bar"> | </div> 
+					<span id="bar"> | </span> 
 					<a href="http://www.samuelsannicolas.com">online portfolio</a>
 				</div>
 		</footer>

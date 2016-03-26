@@ -1,4 +1,5 @@
 <?php
+	# Starts the sesssion to pull the users' name
 	session_start();
 
 	if (isset($_SESSION["name"])) {
@@ -20,6 +21,12 @@
 		$error = $_GET["error"];
 	}
 ?>
+
+<!--
+	Created by Samuel San Nicolas - 3/19/2016
+	This page is the HTML for the users' personal homepage. The rest of the information
+	is genereated in main.js.
+-->
 
 <!DOCTYPE html>
 <html>
@@ -94,7 +101,7 @@
 			<p>Created by <span id="signature">Samuel San Nicolas</span></p>
 			<div id="links">
 				<a href="https://github.com/sjsn">github</a> 
-				<div id="bar"> | </div> 
+				<span id="bar"> | </span> 
 				<a href="http://www.samuelsannicolas.com">online portfolio</a>
 			</div>
 		</footer>

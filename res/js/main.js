@@ -1,5 +1,7 @@
 /*
 	Created by Samuel San Nicolas - 3/19/2016
+	This page creates the front-end of the website. Written in 100% vanilla JS.
+
 	Weather information provided by http://openweathermap.org/
 	Weather icons obtained from http://www.flaticon.com/authors/icon-works
 */
@@ -27,7 +29,7 @@
 	// URL for the base page
 	const HOME_URL = "http://students.washington.edu/sjsn/homepage/";
 
-	// anonymous function called when the page loads and draws all relevant information
+	// Anonymous function called when the page loads and draws all relevant information
 	window.onload = function() {
 		// Gets and sets all of the users settings
 		getSettings();
@@ -38,8 +40,7 @@
 	/*  Helper AJAX request handler.
 		Takes in the base url, any php added to be added to end of url, 
 		the function that the ajax request calls onload, weather it's 
-		a "GET" or "POST" request, and any parameters to be sent
-	*/
+		a "GET" or "POST" request, and any parameters to be sent */
 	function ajax(url, php, redirect, type, params) {
 		var request = new XMLHttpRequest();
 		request.open(type, url + php, true);
@@ -141,10 +142,10 @@
 		var selection;
 		for (var i = 0; i < json.list.length; i++) {
 			/* Sets 'selection' to the json array at the selectedDate + hours
-			Have to check if the time is +- 7 hours from the current time due
+			Have to check if the time is +- 12 hours from the current time due
 			to inconsistencies with weather API */
 			if (json.list[i].dt != d) {
-				for (var j = 0; j < 7; j++) {
+				for (var j = 0; j < 14; j++) {
 					if (json.list[i].dt == (d - (3600 * j)) || 
 						json.list[i].dt == (d + (3600 * j))) {
 						selection = json.list[i];
@@ -273,6 +274,7 @@
 
 	// Sets up an AJAX request to get the selected dates ToDo List
 	function getToDo() {
+		document.getElementById("addItem").style.display = "none";
 		document.getElementById("todoloading").style.display = "initial";
 		document.getElementById("list").innerHTML = "";
 		document.getElementById("todoerror").innerHTML = "";
@@ -329,6 +331,7 @@
 		}
 		document.getElementById("")
 		document.getElementById("todoloading").style.display = "none";
+		document.getElementById("addItem").style.display = "initial";
 	}
 
 	// Changes the "checked" state of the selected ToDo item.
@@ -361,7 +364,7 @@
 		ajax(HOME_URL, php, getToDo, "POST", params);
 	}
 
-	// Deletes the selected ToDo item.
+	// Deletes the selected ToDo item
 	function deleteItem() {
 		var php = "res/forms/todo.php";
 		var item = this.id;
@@ -372,7 +375,7 @@
 		ajax(HOME_URL, php, getToDo, "POST", params);
 	}
 
-	// Adds a new ToDoitem.
+	// Adds a new ToDoitem
 	function addToDoItem() {
 		document.getElementById("addError").innerHTML = "";
 		var php = "res/forms/todo.php";

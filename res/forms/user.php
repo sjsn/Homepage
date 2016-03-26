@@ -1,4 +1,12 @@
 <?php
+
+	/*
+		Created by Samuel San Nicolas - 3/19/2016
+		This page genereates the users' settings and Todo information
+		into JSON to be used by the front-end.
+	*/
+
+	# Starts the sesssion to pull the users' name
 	session_start();
 	if(!isset($_SESSION["name"])) {
 		header("Location: ../../");
@@ -29,7 +37,7 @@
 			"city" => trim($city),
 			"state" => trim($state),
 			"country" => trim($country),
-			"zip" => trim($zip)
+			"zip" => trim($zip),
 		);
 
 		$data = array(
@@ -42,16 +50,23 @@
 		// Makes JSON for a single date, used for displaying data in main.js
 		if (isset($_GET["date"])) {
 			$today = $_GET["date"];
-			if (!file_exists("../../users/$n/$today.txt")) {
-				# Creates the new ToDo file if none exists
-				touch("../../users/$n/$today.txt");
-				# 86400 is one day in epoch time
-				$twoDaysAgo = $today - (86400 * 2);
-				/* If there's a ToDo List from two days ago, delete it.
-				Saves yesterdays ToDo List since weather API updates funny... */
-				if (file_exists("../../users/$n/$twoDaysAgo.txt")) {
-					unlink("../../users/$n/$twoDaysAgo.txt");
+			$today = str_split($today);
+			if ($today[count($today) - 1] == 0 && count($today) == 10) {
+				$today = implode("", $today);
+				if (!file_exists("../../users/$n/$today.txt")) {
+					# Creates the new ToDo file if none exists
+					touch("../../users/$n/$today.txt");
+					# 86400 is one day in epoch time
+					$sevenDaysAgo = $today - (86400 * 8);
+					/* If there's a ToDo List from 8 days ago, delete it.
+					Saves 7 ToDo Lists since weather API updates funny. */
+					if (file_exists("../../users/$n/$sevenDaysAgo.txt")) {
+						unlink("../../users/$n/$sevenDaysAgo.txt");
+					}
 				}
+			} else {
+				header("HTTP/1.1 Invalid Parameters");
+				die("There was an error with the date parameter. Please try again.");
 			}
 			$todoFile = file("../../users/$n/$today.txt");
 			$data = array();
