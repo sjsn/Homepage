@@ -2,17 +2,29 @@
 	# Starts the sesssion to pull the users' name
 	session_start();
 	if (!isset($_SESSION["name"])) {
-		$error = "Please log in to change any settings.";
-		header("Location: ../../?error=$error");
+		header("Location: ../../");
 		die();
 	} else {
 		$name = $_SESSION["name"];
 		$displayName = strtoupper($name) . "'s";
 	}
 
+	if (isset($_GET["error"])) {
+		$error = $_GET["error"];
+		if ($error == "confirmDel") {
+			$errorMsg = "Please confirm that you wish to delete your account.";
+		}
+	}
+
 	$file = file("settings.txt");
 	list($units, $city, $state, $country, $zip) = $file;
 ?>
+
+<!--
+	Created by Samuel San Nicolas - 3/19/2016
+	The page the user interacts with to change their settings or delete their 
+	account.
+-->
 
 <!DOCTYPE html>
 <html>
@@ -75,6 +87,21 @@
 				</form>
 			</div>
 			<div id="deleteContainer">
+
+				<?php
+					if ($error == "confirmDel") {
+				?>
+
+				<div id="special">
+					<div id="delError">
+							<p><?=$errorMsg ?></p>
+					</div>
+				</div>
+
+				<?php
+				}
+				?>
+
 				<div id="deleteForm">
 					<h2>Delete Account</h2>
 					<form action="../../res/forms/delete.php" method="post">

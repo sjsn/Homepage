@@ -13,13 +13,14 @@
 	var city = ""; // The set city (default="Seattle")
 	var country = "";  // The set country (default="UnitedStates")
 	var units = ""; // The set units (default="imperial")
-	var unitSym = "";
+	var unitSym = ""; // The symbol used for temperatures
 	var state = ""; // The set state (default="Washington")
 	var zip = ""; // The set zip code (default="98105")
 	var name = ""; // The users' username
 	var todayStandard = ""; // The current date in [weekday, month day, year]
 	var todayEpoch = ""; // The current date in Epoch/Unix time
 	var selectedDate = ""; // The currently selected date in Epoch/Unix time (default=todayEpoch)
+	var max = false; // If max amount of ToDo items (10) has been reached
 	// URL for weather API
 	const API_URL = "http://api.openweathermap.org/data/2.5/";
 	// URL for weather icons
@@ -33,8 +34,11 @@
 	window.onload = function() {
 		// Gets and sets all of the users settings
 		getSettings();
-		// When the add button is clicked, adds the item to the todolist
+		/* When the add button is clicked or enter pressed, adds the item to 
+		the todolist */
 		document.getElementById("add").onclick = addToDoItem;
+		// Checks what key is pressed and adjusts behavior accordingly
+		document.addEventListener("keydown", checkKeyPress, false);
 	};
 
 	/*  Helper AJAX request handler.
@@ -248,11 +252,21 @@
 	}
 
 	// Changes the selectedDate to the date of the forecast title that was clicked
-	function changeDate() {
-		if (this.id == "tableTitle") {
-			var newDate = this.innerHTML;
+	function changeDate(newDate) {
+		// newDate is only defined when the date is changed from a keypress
+		if (!newDate || newDate.which) {
+			if (this.id == "tableTitle") {
+				var newDate = this.innerHTML;
+			} else {
+				var newDate = this.id;
+			}
 		} else {
-			var newDate = this.id;
+			var d = new Date(0);
+			d.setUTCSeconds(newDate);
+			newDate = d.toDateString();
+			newDate = newDate.split(" ");
+			newDate = newDate[0] + ", " + newDate[1] + " " + newDate[2] + 
+			", " + newDate[3];
 		}
 		var titles = document.querySelectorAll("#tableTitle");
 		for (var i = 0; i < titles.length; i++) {
@@ -278,6 +292,8 @@
 		document.getElementById("todoloading").style.display = "initial";
 		document.getElementById("list").innerHTML = "";
 		document.getElementById("todoerror").innerHTML = "";
+		document.getElementById("addError").style.display = "none";
+		document.getElementById("addError").innerHTML = "";
 		var php = "?mode=todo&username=" + name + "&date=" + selectedDate;
 		ajax(USER_URL, php, loadToDo, "GET", false);
 	}
@@ -289,6 +305,11 @@
 		if (this.status == 200) {
 			var json = JSON.parse(this.responseText);
 			if (json.todo.items.length) {
+				if (json.todo.items.length >= 10) {
+					max = true;
+				} else {
+					max = false;
+				}
 				for (var i = 0; i < json.todo.items.length; i++) {
 					var row = document.createElement("tr")
 					var checkCell = document.createElement("td");
@@ -329,7 +350,6 @@
 			"error loading your ToDo List. Please <a href=\"./\"> refresh </a> " +  
 			"the page to try again.";
 		}
-		document.getElementById("")
 		document.getElementById("todoloading").style.display = "none";
 		document.getElementById("addItem").style.display = "initial";
 	}
@@ -367,7 +387,15 @@
 	// Deletes the selected ToDo item
 	function deleteItem() {
 		var php = "res/forms/todo.php";
-		var item = this.id;
+		var item;
+		if (this) {
+			item = this.id;
+		} else {
+			var list = document.getElementById("list");
+			var lastRow = list.rows[list.rows.length - 1];
+			var cell = lastRow.cells[1];
+			item = cell.firstChild.id;
+		}
 		var params = new FormData();
 		params.append("item", item);
 		params.append("date", selectedDate);
@@ -375,19 +403,28 @@
 		ajax(HOME_URL, php, getToDo, "POST", params);
 	}
 
-	// Adds a new ToDoitem
+	// Adds a new ToDoitem if the max hasn't been reached
 	function addToDoItem() {
-		document.getElementById("addError").innerHTML = "";
-		var php = "res/forms/todo.php";
-		var newItem = document.getElementById("newItem").value;
-		if (newItem) {
-			var params = new FormData();
-			params.append("item", newItem);
-			params.append("date", selectedDate);
-			params.append("action", "add");
-			ajax(HOME_URL, php, makeToDo, "POST", params);
+		if (!max) {
+			document.getElementById("addError").style.display = "none";
+			document.getElementById("addError").innerHTML = "";
+			var php = "res/forms/todo.php";
+			var newItem = document.getElementById("newItem").value;
+			if (newItem != "") {
+				var params = new FormData();
+				params.append("item", newItem);
+				params.append("date", selectedDate);
+				params.append("action", "add");
+				ajax(HOME_URL, php, makeToDo, "POST", params);
+			} else {
+				document.getElementById("addError").style.display = "block";
+				document.getElementById("addError").innerHTML = "New ToDo  " +
+				"items cannot be blank. Please try again";
+			}
 		} else {
-			document.getElementById("addError").innerHTMl = "New item cannot be blank.";
+			document.getElementById("addError").style.display = "block";
+			document.getElementById("addError").innerHTML = "You already " + 
+			"have 10 ToDo items. Please delete one to add another.";
 		}
 	}
 
@@ -399,6 +436,38 @@
 		} else {
 			document.getElementById("addError").innerHTML = "There was an " +
 			"error loading your ToDo List. Please refresh the page to try again.";
+		}
+	}
+
+	// Key press handler. Adds functionality to '[', ']', and 'enter' keys.
+	function checkKeyPress(e) {
+		// Gets the ASCII value of the current key that was pressed
+		var key = e.which || e.keyCode;
+		/* Checks if the ToDo field is selected or not. Don't want to 
+		change day if the user is typing a '[' or ']' into the ToDo field*/
+		if (document.activeElement.tagName != "INPUT") {
+			// When '[' is pressed, go back one day
+			if (key == 219 && selectedDate > todayEpoch) {
+				selectedDate = selectedDate - 86400;
+				changeDate(selectedDate);
+			// When ']' is pressed, go forward one day
+			} else if (key == 221 && selectedDate < (todayEpoch + (86400 * 7))) {
+				selectedDate = selectedDate + 86400;
+				changeDate(selectedDate);
+			} else if (key == 189 && 
+				document.getElementById("list").rows.length > 0) {
+				deleteItem();
+			}
+		}
+		// When 'enter' is pressed, add current ToDo item
+		if (key == 13) {
+			// Adds item when text is in the newItem field
+			if (document.getElementById("newItem").value != "") {
+				addToDoItem();
+			// Focuses on item when there is no text in the field
+			} else {
+				document.getElementById("newItem").focus();
+			}
 		}
 	}
 }) ();

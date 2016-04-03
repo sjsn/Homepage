@@ -2,6 +2,8 @@
 	# Starts the sesssion to pull the users' name
 	session_start();
 
+	/* Redirects the user if they attempt to log into a page that belongs
+	to a different account than the one they're logged in to. */
 	if (isset($_SESSION["name"])) {
 		$name = $_SESSION["name"];
 		$dir = getcwd();
@@ -15,10 +17,6 @@
 	} else {
 		header("Location: ../");
 		die();
-	}
-
-	if (isset($_GET["error"])) {
-		$error = $_GET["error"];
 	}
 ?>
 
@@ -77,7 +75,7 @@
 							<div id="addItem">
 								<br />
 								<input type="text" name="newItem" id="newItem" size="30" maxlength="30" 
-								placeholder="e.g. Buy Milk (30 char limit)" />
+								placeholder="e.g. Finish homework (30 char limit)" />
 								<div id="add">
 									Add
 								</div>

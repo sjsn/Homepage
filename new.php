@@ -64,15 +64,19 @@
 				</p>
 			</div>
 			<div id="special">
+
 				<?php
 				if ($error) {
 				?>
+
 				<div id="error">
 					<?=$error ?>
 				</div>
+
 				<?php
 				}
 				?>
+				
 			</div>
 			<p id="formInstr"><span id="required">*</span> = required</p>
 			<div id="createForm">

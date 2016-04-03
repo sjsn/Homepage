@@ -1,4 +1,11 @@
 <?php
+
+	/*
+		Created by Samuel San Nicolas - 3/19/2016
+		This page destroys the current session containing the users information
+		and redirects the user to the login page.
+	*/
+
 	# Starts the sesssion to pull the users' name
 	session_start();
 	# Destroys the current session
