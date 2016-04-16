@@ -98,8 +98,6 @@
 	# Creates a "users" directory if none exists
 	if (!file_exists("../../users")) {
 		mkdir("../../users/");
-		touch("../../users/index.php");
-		copy("../utmp/index.php")
 	}
 	# Creates the new users' directory
 	mkdir("../../users/$username/");
