@@ -1,7 +1,6 @@
-/*
-	Created by Samuel San Nicolas - 3/19/2016
-	This page contains the styling for all pages provided by this web service.
-*/
+#pageDesc h2#dev {
+	color: red;
+}
 
 #signature {
 	font-family: monospace;
@@ -94,80 +93,21 @@ header #title {
 	margin: 0px;
 	display: inline-block;
 	color: #80766a;
-	font-weight: normal;
-}
-
-#homeContent {
-	width: 100%;
-	padding: 0px;
 }
 
 #pageDesc {
 	margin-left: auto;
 	margin-right: auto;
-	width: 100%;
+	width: 60%;
 }
 
 #pageDesc h2 {
 	color: #80766a;
 	text-align: center;
-	clear: both;
-	font-size: 40px;
-	font-style: italic;
 }
 
-h3#siteDesc {
-	font-size: 30px;
-	text-align: center;
-	margin-bottom: 0px;
-	margin-top: 60px;
-}
-
-#exampleContent {
-	text-align: center;
-}
-
-.section {
-	width: 25%;
-	display: inline-block;
-	margin: 20px;
-	vertical-align: top;
-}
-
-h3.sectionTitle {
-	text-align: center;
-	font-size: 20px;
-}
-
-.section img {
-	text-align: center;
-	height: 150px;
-	width: 300px;
-}
-
-.section p{
-	text-indent: 40px;
-	text-align: left;
-}
-
-#otherFeatures {
-	clear: both;
-	text-align: center;
-	margin-top: 50px;
-	margin-bottom: 50px;
-}
-
-table#featureList {
-	display: inline-block;
-}
-
-#featureList td {
-	text-align: left;
-}
-
-#otherFeatures table, #otherFeatures td, #otherFeatures th {
-	border: 1px solid black;
-	border-collapse: collapse;
+#pageDesc p {
+	text-indent: 50px;
 }
 
 #week {
@@ -184,32 +124,13 @@ table#featureList {
 	text-align: center;
 }
 
-#required {
-	color: red;
-}
-
-#formInstr {
-	margin-top: 5%;
-	margin-bottom: 0px;
-	text-align: center;
-}
-
-#createForm p {
-	font-size: 12px;
-	font-style: italic;
-	margin-top: 0px;
-}
-
-#settingsForm {
-	margin-top: 5%;
-}
-
 #createForm, #settingsForm{
-	width: 25%;
+	width: 20%;
 	margin-left: auto;
 	margin-right: auto;
 	border: 2px solid grey;
 	text-align: center;
+	margin-top: 5%;
 	padding: 5px;
 }
 
@@ -258,7 +179,7 @@ table#featureList {
 .del {
 	color: red;
 	background-color: white;
-	border: 1px solid #CECECE;
+	border: 1px solid #e5e5e5;
 	border-radius: 5px;
 	padding-left: 3px;
 	padding-right: 3px;
@@ -282,7 +203,6 @@ table#featureList {
 	text-align: center;
 	font-size: 30px;
 	color: #80766a;
-	font-weight: normal;
 }
 
 #termsCheckBox {
@@ -308,6 +228,7 @@ table#featureList {
 
 #currentWeather {
 	text-align: center;
+	/*border: 2px solid black;*/
 	display: inline-block;
 	margin-left: auto;
 	margin-right: auto;
@@ -348,7 +269,7 @@ table#featureList {
 
 #present {
 	text-align: center;
-	margin-bottom: 40px;
+	margin-bottom: 80px;
 }
 
 #present h2 {
@@ -410,64 +331,4 @@ table#featureList {
 	height: 32px;
 	width: 32px;
 	margin-right: 8px;
-}
-
-#forecastTable td:hover {
-	cursor: pointer;
-}
-
-#deleteContainer {
-	width: 100%;
-	text-align: center;
-	margin-top: 25px;
-}
-
-#deleteForm {
-	font-size: 12px;
-	display: inline-block;
-	text-align: center;
-	margin-top: 25px;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-#deleteForm h2, #deleteForm input[type="submit"] {
-	color: red;
-}
-
-#deleteForm h2 {
-	font-size: 20px;
-}
-
-#delError {
-	background-color: pink;
-	border: 1px dashed red;
-	color: red;
-	display: inline-block;
-}
-
-#mainError {
-	margin-top: 10px;
-	float: right;
-	clear: both;
-	border: 1px solid red;
-	background-color: pink;
-	color: red;
-	padding: 5px;
-}
-
-#mainLogin {
-	float: right;
-	clear: both;
-}
-
-#addError {
-	display: none;
-	font-size: 12px;
-	font-style: italic;
-	color: red;
-	border: 1px dotted red;
-	background-color: pink;
-	margin-top: 5px;
-	text-align: center;
 }

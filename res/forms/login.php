@@ -16,30 +16,52 @@
 
 	# Check to see if the login info is blank
 	if ($_POST["name"] != "" && $_POST["pass"] != "") {
-		$name = $_POST["name"];
-		$pass = $_POST["pass"];
+		$name = filter_input(INPUT_POST, "name", FILTER_SANITIZE_SPECIAL_CHARS);
+		$pass = filter_input(INPUT_POST, "pass", FILTER_SANITIZE_SPECIAL_CHARS);
 	} else {
 		header("Location: ../../?error=blank");
 		die();
 	}
 
-	# Creates a login file if none exists
-	if (!file_exists("../logins.txt")) {
-		touch("../logins.txt");
-	}
+	$server = file("serversettings.txt");
 
-	# Searches through login file for matches
-	$file = file("../logins.txt");
-	foreach($file as $lines) {
-		$account = explode("|", trim($lines));
-		if ($account[0] == $name && $account[1] == $pass) {
-			$_SESSION["name"] = $name;
-			header("Location: ../../");
+	# The database login credientials;
+	$servername = trim($server[0]);
+	$serverport = trim($server[1]);
+	$serveruser = trim($server[2]);
+	$serverpass = trim($server[3]);
+	$dbname = trim($server[4]);
+
+	# Establishes connection with database via PDO object
+	$db = new PDO("mysql:dbname=$dbname;port=$serverport;host=$servername;charset=utf8", "$serveruser", "$serverpass");
+	# Generates SQL error messages
+	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$cleanName = htmlspecialchars($name);
+	$cleanName = $db->quote($cleanName);
+	$cleanPass = htmlspecialchars($pass);
+	$cleanPass = $db->quote($cleanPass);
+
+	# Searches through database for matches
+	$loginCheck = "SELECT username 
+					FROM users 
+					WHERE username = {$cleanName} 
+					AND password = {$cleanPass}";
+	try {
+		$rows = $db->query($loginCheck);
+		$row = $rows->fetch();
+		if ($row["username"] && $row["username"] != "") {
+			$_SESSION["name"] = "$name";
+			header("Location: ../../users/$name");
+			die();
+		} else {
+			# If no matches found, redirects to login page with error
+			header("Location: ../../?error=invalid");
 			die();
 		}
 	}
-
-	# If no matches found, redirects to login page with error
-	header("Location: ../../?error=invalid");
-	die();
+	catch (PDOException $e)
+	{
+		#header("Location: ../../?error=invalid");
+		die($e);
+	}
 ?>

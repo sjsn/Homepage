@@ -18,30 +18,55 @@
 	}
 	$name = $_SESSION["name"];
 
-	# Deletes the users account directory and login info
-	if (is_dir("../../users/$name")) {
-		$files = glob("../../users/$name/*");
-		foreach ($files as $file) {
-			unlink($file);
-		}
-		unlink("../../users/$name/.htaccess");
-		if (rmdir("../../users/$name")) {
-			$file = file("../logins.txt");
-			$logins = "";
-			foreach($file as $accounts) {
-				$user = explode("|", trim($accounts));
-				if ($name != $user[0]) {
-					$logins = "$logins$accounts";
-				}
+	$server = file("serversettings.txt");
+
+	# The database login credientials;
+	$servername = trim($server[0]);
+	$serverport = trim($server[1]);
+	$serveruser = trim($server[2]);
+	$serverpass = trim($server[3]);
+	$dbname = trim($server[4]);
+
+	# Establishes connection with database via PDO object
+	$db = new PDO("mysql:dbname=$dbname;port=$serverport;host=$servername;charset=utf8", "$serveruser", "$serverpass");
+	# Generates SQL error messages
+	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+	$cleanName = $db->quote($name);
+
+	# Deletes the users data from the database
+	$delUser = "DELETE FROM users 
+				WHERE username = {$cleanName}";
+	$delTodos = "DELETE FROM todos 
+				WHERE username = {$cleanName}";
+	$delSettings = "DELETE FROM settings 
+					WHERE username = {$cleanName}";
+
+	try {
+		$db->exec($delUser);
+		$db->exec($delTodos);
+		$db->exec($delSettings);
+		# Deletes the users account directory
+		if (is_dir("../../users/$name")) {
+			$files = glob("../../users/$name/*");
+			foreach ($files as $file) {
+				unlink($file);
 			}
-			file_put_contents("../logins.txt", $logins);
-			header("Location: ../../res/forms/logout.php?del=true");
-			die();
+			unlink("../../users/$name/.htaccess");
+			if (rmdir("../../users/$name")) {
+				header("Location: ../../res/forms/logout.php?del=true");
+				die();
+			} else {
+				header("Location: ../../users/$name/settings.php?error=delError");
+				die();
+			}
 		} else {
 			header("Location: ../../users/$name/settings.php?error=delError");
 			die();
 		}
-	} else {
+	}
+	catch (PDOException $e)
+	{
 		header("Location: ../../users/$name/settings.php?error=delError");
 		die();
 	}

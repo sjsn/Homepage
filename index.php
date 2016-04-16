@@ -19,7 +19,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?=$displayName ?> Homepage</title>
+	<title>Homepage</title>
 	<link rel="icon" type="image/ico" href="./res/img/favicon.ico" sizes="32x32">
 	<link rel="stylesheet" type="text/css" href="./res/css/main.css">
 	<!-- Google Font: Lato -->

@@ -15,14 +15,29 @@
 		die();
 	}
 
+	# Gets the info for connecting to the database
+	$server = file("serversettings.txt");
+
+	# The database login credientials;
+	$servername = trim($server[0]);
+	$serverport = trim($server[1]);
+	$serveruser = trim($server[2]);
+	$serverpass = trim($server[3]);
+	$dbname = trim($server[4]);
+
+	# Establishes connection with database via PDO object
+	$db = new PDO("mysql:dbname=$dbname;port=$serverport;host=$servername;charset=utf8", "$serveruser", "$serverpass");	
+	# Generates SQL error messages
+	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 	# Makes sure that the required parameters are set. Redirects if not
 	if (isset($_GET["mode"]) && isset($_GET["username"])) {
-		$u = $_GET["username"];
-		$n = $_SESSION["name"];
+		$username = $_GET["username"];
+		$name = $_SESSION["name"];
 		$mode = $_GET["mode"];
 		/* Checks to see if the entered username matches the username of
 		the person logged in for added security. */
-		if (strcmp($u, $n)) {
+		if (strcmp($username, $name)) {
 			header("HTTP/1.1 Invalid Login");
 			die("You must be logged in to the account to view that information.");
 		}
@@ -31,20 +46,25 @@
 		die("Invalid request, please check your parameters and try again.");
 	}
 
+	$cleanName = $db->quote($name);
+
 	# Makes json for account settings
 	if ($mode == "account") {
-		$settingsFile = file("../../users/$n/settings.txt");
-		list($units, $city, $state, $country, $zip) = $settingsFile;
+		$getSettings = "SELECT units, city, state, country, zip 
+						FROM settings 
+						WHERE username = {$cleanName}";
+		$rows = $db->query($getSettings);
+		$row = $rows->fetch();
 		$settingsData = array(
-			"units" => trim($units),
-			"city" => trim($city),
-			"state" => trim($state),
-			"country" => trim($country),
-			"zip" => trim($zip)
+			"units" => trim($row["units"]),
+			"city" => trim($row["city"]),
+			"state" => trim($row["state"]),
+			"country" => trim($row["country"]),
+			"zip" => trim($row["zip"])
 		);
 
 		$data = array(
-			"account" => $u, 
+			"account" => $username, 
 			"settings" => $settingsData
 		);
 		makeJSON($data);
@@ -55,40 +75,38 @@
 			$today = $_GET["date"];
 			# Check to make sure date parameter is accurate
 			if ($today % 2 == 0 && strlen($today) >= 10) {
-				# Handles creation of a new days ToDo list
-				if (!file_exists("../../users/$n/$today.txt")) {
-					# Creates the new ToDo file if none exists
-					touch("../../users/$n/$today.txt");
-					# 86400 is one day in epoch time
-					$eightDaysAgo = $today - (86400 * 8);
-					/* If there's a ToDo List from 8 days ago or before, delete it.
-					Saves 7 ToDo Lists since weather API updates funny. */
-					$files = glob("../../users/$n/*.txt");
-					foreach($files as $file) {
-						$file = explode("/", $file);
-						if (strcmp($file[4], "settings.txt") && intval($file[4]) <= $eightDaysAgo ) {
-							$file = implode("/", $file);
-							unlink("$file");
-						}
-					}
+				# 86400 is one day in epoch time
+				$eightDaysAgo = $today - (86400 * 8);
+				/* If there's a ToDo List from 8 days ago or before, delete it.
+				Saves 7 ToDo Lists since weather API updates funny. */
+				$delOld = "DELETE FROM todos
+							WHERE `date` <= '$eightDaysAgo'
+							AND username = {$cleanName}";
+				try {
+					$db->exec($delOld);
+				}
+				catch (PDOException $e)
+				{
+					header("HTTP/1.1 Invalid");
+					die("There was a problem with the query: " . $e);
 				}
 			} else {
 				header("HTTP/1.1 Invalid Parameters");
 				die("There was an error with the date parameter. Please try again.");
 			}
-			$todoFile = file("../../users/$n/$today.txt");
 			$data = array();
 			$todoData = array();
 			$todoDataHolder = array();
 			$todoComplete = array();
-			foreach($todoFile as $items) {
-				$value = explode("|", $items);
-				$input = trim($value[0]);
-				# Turns the true/false string into a boolean
-				$checked = filter_var(trim($value[1]), FILTER_VALIDATE_BOOLEAN);
-				$holderArray = array();
-				$todoData["item"] = $input;
-				$todoData["checked"] = $checked;
+			$getTodos = "SELECT item, checked
+						FROM todos
+						WHERE `date` = {$today}
+						AND username = {$cleanName}
+						ORDER BY num ASC";
+			$rows = $db->query($getTodos);
+			foreach($rows as $row) {
+				$todoData["item"] = $row["item"];
+				$todoData["checked"] = $row["checked"];
 				$todoDataHolder[] = $todoData;
 			}
 			$todoComplete["items"] = $todoDataHolder;
@@ -96,35 +114,8 @@
 			makeJSON($data);
 		// Makes JSON for every date, used for debugging
 		} else {
-			$date = getdate();
-			$day = $date["mday"];
-			$month = $date["mon"];
-			$year = $date["year"];
-			$today = "$year/$month/$day";
-			$today = strtotime($today);
-			$data = array();
-			for ($i = 0; $i < 7; $i++) {
-				$todoFile = file("../../users/$n/$today.txt");
-				$todoComplete = array();
-				$todoDataHolder = array();
-				$todoData = array();
-				foreach($todoFile as $items) {
-					$value = explode("|", $items);
-					$input = trim($value[0]);
-					# Turns the true/false string into a boolean
-					$checked = filter_var(trim($value[1]), FILTER_VALIDATE_BOOLEAN);
-					$holderArray = array();
-					$todoData["item"] = $input;
-					$todoData["checked"] = $checked;
-					$todoDataHolder[] = $todoData;
-				}
-				$todoComplete["items"] = $todoDataHolder;
-				$data["$today"] = $todoComplete;
-				// 86400 seconds in a day for Unix time
-				$plusone = 86400;
-				$today = $today + $plusone;
-			}
-			makeJSON($data);
+			header("Location: ../../users/$username/settings.php?error=date");
+			die();
 		}
 	} else {
 		header("HTTP/1.1 Invalid Parameters");

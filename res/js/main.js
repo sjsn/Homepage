@@ -317,11 +317,11 @@
 					checkBox.type = "checkbox";
 					checkBox.id = "check";
 					checkBox.value = json.todo.items[i].item;
-					checkBox.checked = json.todo.items[i].checked;
+					checkBox.checked = (json.todo.items[i].checked === "true");
 					checkBox.onchange = changeChecked;
 					var textCell = document.createElement("td");
 					var text = document.createElement("p");
-					text.innerHTML = json.todo.items[i].item;
+					text.innerHTML = decodeHtml(json.todo.items[i].item);
 					if (checkBox.checked) {
 						text.innerHTML = "<s>" + text.innerHTML + "</s>";
 					}
@@ -344,6 +344,7 @@
 			} else {
 				document.getElementById("todoerror").innerHTML = "You " +
 				"have not yet added any ToDo Items for this day.";
+				max = false;
 			}
 		} else {
 			document.getElementById("todoerror").innerHTML = "There was an " +
@@ -356,13 +357,13 @@
 
 	// Changes the "checked" state of the selected ToDo item.
 	function changeChecked() {
-		var php = "res/forms/todo.php?";
+		var php = "res/forms/todo.php";
 		var item;
 		var checked;
 		// If the checkbox was clicked
 		if (this.value) {
 			item = this.value;
-			checked = this.checked;
+			checked = !this.checked;
 		// If the words were clicked
 		} else {
 			item = this.id;
@@ -374,8 +375,14 @@
 				}
 			}
 			checked = thisCheck.checked;
-			checked = !checked;
 		}
+		// Changes checked value to the new value
+		if (checked) {
+			checked = "false";
+		} else {
+			checked = "true";
+		}
+		console.log(item);
 		var params = new FormData();
 		params.append("item", item);
 		params.append("checked", checked);
@@ -469,5 +476,11 @@
 				document.getElementById("newItem").focus();
 			}
 		}
+	}
+
+	function decodeHtml(string) {
+	    var txt = document.createElement("textarea");
+	    txt.innerHTML = string;
+	    return txt.value;
 	}
 }) ();

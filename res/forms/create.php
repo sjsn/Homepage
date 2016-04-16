@@ -15,14 +15,14 @@
 
 	# Check to see if the username/password fields were filled in
 	if ($_POST["username"] != "" && $_POST["pass1"] != "" && $_POST["pass2"] != "") {
-		$username = $_POST["username"];
+		$username = filter_input(INPUT_POST, "username", FILTER_SANITIZE_SPECIAL_CHARS);
 		# Check to see if the password and the check matched
 		if (strcmp($_POST["pass1"], $_POST["pass2"])) {
 			$error = "Passwords did not match. Please try again.";
 			header("Location: ../../new.php?error=$error");
 			die();
 		}
-		$pass = $_POST["pass1"];
+		$pass = filter_input(INPUT_POST, "pass1", FILTER_SANITIZE_SPECIAL_CHARS);
 	} else {
 		$error = "Username and password cannot be blank";
 		header("Location: ../../new.php?error=$error");
@@ -54,56 +54,55 @@
 		die();
 	}
 	
-	# Creates the logins.txt file if there isn't one already
-	if (!file_exists("../logins.txt")) {
-		touch("../logins.txt");
+	$server = file("serversettings.txt");
+
+	# The database login credientials;
+	$servername = trim($server[0]);
+	$serverport = trim($server[1]);
+	$serveruser = trim($server[2]);
+	$serverpass = trim($server[3]);
+	$dbname = trim($server[4]);
+
+	# Establishes connection with database via PDO object
+	$db = new PDO("mysql:dbname=$dbname;port=$serverport;host=$servername;charset=utf8", "$serveruser", "$serverpass");
+	# Generates SQL error messages
+	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+	$cleanName = $db->quote($username);
+	$cleanPass = $db->quote($pass);
+
+	# Checks to see if the username is already in use
+	$dupCheck = "SELECT username 
+				FROM users 
+				WHERE username = {$cleanName}";
+	$rows = $db->query($dupCheck);
+	$row = $rows->fetch();
+	if ($row["username"] && $row["username"] != "") {
+		$error = "Sorry, that username has already been taken. Please try a different one.";
+		header("Location: ../../new.php?error=$error");
+		die();
 	}
 
-	# Adds the new user to the logins.txt file so they can login in the future
-	$file = file("../logins.txt");
-	foreach($file as $lines) {
-		$accounts = explode("|", trim($lines));
-		if ($username == $accounts[0]) {
-			$error = "Sorry, that username has already been taken. Please try a different one.";
-			header("Location: ../../new.php?error=$error");
-			die();
-		}
+	try {
+		# Adds the new user to the database so they can login in the future
+		$addUser = "INSERT INTO users (username, password) 
+					VALUES ({$cleanName}, {$cleanPass})";
+		$db->exec($addUser);
+	} 
+	catch (PDOException $e) 
+	{
+		header("Location: ../../?error=add");
+		die($e);
 	}
-	$newaccount = "$username|$pass\n";
-	file_put_contents("../../res/logins.txt", $newaccount, FILE_APPEND);
 
+	# Creates a "users" directory if none exists
+	if (!file_exists("../../users")) {
+		mkdir("../../users/");
+		touch("../../users/index.php");
+		copy("../utmp/index.php")
+	}
 	# Creates the new users' directory
 	mkdir("../../users/$username/");
-
-	# Gets the current date's day, month, and year
-	$date = getdate();
-	$day = $date["mday"];
-	$month = $date["mon"];
-	$year = $date["year"];
-	# Creates 7 blank todo.txt files, one for every day of the week
-	for ($i = 0; $i < 7; $i++) {
-		$today = "$year/$month/$day";
-		$todayEpoch = strtotime($today);
-		/* strtotime returns null if not a valid date (i.e. 2016/01/32).
-		Fixes month and day if invalid (end of month rollover) */
-		if (!$todayEpoch) {
-			$day = 1;
-			$month++;
-			$today = "$year/$month/$day";
-			$todayEpoch = strtotime($today);
-		}
-		# Fixes month, day, year if STILL invalid (end of year rollover)
-		if (!$todayEpoch) {
-			$year++;
-			$month = 1;
-			$day = 1;
-			$today = "$year/$month/$day";
-			$todayEpoch = strtotime($today);
-		}
-		touch("../../users/$username/$todayEpoch.txt");
-		# Currently broken. Works until the end of the month. Gotta fix
-		$day++;
-	}
 
 	# Creates files in the users' directory
 	touch("../../users/$username/index.php");
@@ -115,36 +114,51 @@
 
 	# Sets the settings to either user defined or defaults
 	if (isset($_POST["units"]) && $_POST["units"] != "") {
-		$units = $_POST["units"];
+		$units = filter_input(INPUT_POST, "units", FILTER_SANITIZE_SPECIAL_CHARS);
 	} else {
 		$units = "imperial";
 	}
 	if (isset($_POST["city"]) && $_POST["city"] != "") {
-		$city = $_POST["city"];
+		$city = filter_input(INPUT_POST, "city", FILTER_SANITIZE_SPECIAL_CHARS);
+
 	} else {
 		$city = "Seattle";
 	}
 	if (isset($_POST["state"]) && $_POST["state"] != "") {
-		$state = $_POST["state"];
+		$state = filter_input(INPUT_POST, "state", FILTER_SANITIZE_SPECIAL_CHARS);
 	} else {
 		$state = "Washington";
 	}
 	if (isset($_POST["country"]) && $_POST["country"] != "") {
-		$country = $_POST["country"];
+		$country = filter_input(INPUT_POST, "country", FILTER_SANITIZE_SPECIAL_CHARS);
 	} else {
 		$country = "UnitedStates";
 	}
 	if (isset($_POST["zip"]) && $_POST["zip"] != "") {
-		$zip = $_POST["zip"];
+		$zip = filter_input(INPUT_POST, "zip", FILTER_SANITIZE_SPECIAL_CHARS);
 	} else {
 		$zip = "98105";
 	}
 
-	$settings = "$units\n$city\n$state\n$country\n$zip";
-	file_put_contents("../../users/$username/settings.txt", $settings);
+	$units = $db->quote($units);
+	$city = $db->quote($city);
+	$state = $db->quote($state);
+	$country = $db->quote($country);
+	$zip = $db->quote($zip);
 
-	# Redirects the user to their homepage in their directory
-	$_SESSION["name"] = $username;
-	header("Location: ../../users/$username/");
-	die();
+
+	$addSettings = "INSERT INTO settings (username, units, city, state, country, zip)
+					VALUES ({$cleanName}, {$units}, {$city}, {$state}, {$country}, {$zip})";
+	try {
+		$db->exec($addSettings);
+		# Redirects the user to their homepage in their directory
+		$_SESSION["name"] = $username;
+		header("Location: ../../users/$username/");
+		die();
+	}
+	catch (PDOException $e) 
+	{
+		#header("Location: ../../new.php?error=dbadd");
+		die($e);
+	}
 ?>

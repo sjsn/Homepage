@@ -1,54 +1,17 @@
 <?php
-	# Starts the sesssion to pull the users' name
 	session_start();
 	if (!isset($_SESSION["name"])) {
-		header("Location: ../../");
+		$error = "Please log in to change any settings.";
+		header("Location: ../../?error=$error");
 		die();
 	} else {
 		$name = $_SESSION["name"];
 		$displayName = strtoupper($name) . "'s";
 	}
 
-	if (isset($_GET["error"])) {
-		$error = $_GET["error"];
-		if ($error == "confirmDel") {
-			$errorMsg = "Please confirm that you wish to delete your account.";
-		}
-	}
-
-	$server = file("../../res/forms/serversettings.txt");
-
-	# The database login credientials;
-	$servername = trim($server[0]);
-	$serverport = trim($server[1]);
-	$serveruser = trim($server[2]);
-	$serverpass = trim($server[3]);
-	$dbname = trim($server[4]);
-
-	# Establishes connection with database via PDO object
-	$db = new PDO("mysql:dbname=$dbname;port=$serverport;host=$servername;charset=utf8", "$serveruser", "$serverpass");
-	# Generates SQL error messages
-	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-	$cleanName = $db->quote($name);
-
-	$getSettings = "SELECT units, city, state, country, zip
-					FROM settings
-					WHERE username = {$cleanName}";
-	$rows = $db->query($getSettings);
-	$row = $rows->fetch();
-	$units = $row["units"];
-	$city = $row["city"];
-	$state = $row["state"];
-	$country = $row["country"];
-	$zip = $row["zip"];
+	$file = file("settings.txt");
+	list($units, $city, $state, $country, $zip) = $file;
 ?>
-
-<!--
-	Created by Samuel San Nicolas - 3/19/2016
-	The page the user interacts with to change their settings or delete their 
-	account.
--->
 
 <!DOCTYPE html>
 <html>
@@ -105,43 +68,17 @@
 					Country:
 					<input type="text" name="country" placeholder="United States" /><br />
 					Zip Code:
-					<input type="number" name="zip" placeholder="98105" maxlength="5" /><br />
+					<input type="text" name="zip" placeholder="98105" /><br />
 					<br />
 					<input type="submit" value="Submit" />
 				</form>
-			</div>
-			<div id="deleteContainer">
-
-				<?php
-					if ($error == "confirmDel") {
-				?>
-
-				<div id="special">
-					<div id="delError">
-							<p><?=$errorMsg ?></p>
-					</div>
-				</div>
-
-				<?php
-				}
-				?>
-
-				<div id="deleteForm">
-					<h2>Delete Account</h2>
-					<form action="../../res/forms/delete.php" method="post">
-						Are you sure?<br />
-						<input type="checkbox" name="confirm" unchecked />Yes, I am sure<br />
-						<br />
-						<input type="submit" value="delete" />
-					</form>
-				</div>
 			</div>
 		</div>
 		<footer>
 			<p>Created by <span id="signature">Samuel San Nicolas</span></p>
 			<div id="links">
 				<a href="https://github.com/sjsn">github</a> 
-				<span id="bar"> | </span> 
+				<div id="bar"> | </div> 
 				<a href="http://www.samuelsannicolas.com">online portfolio</a>
 			</div>
 		</footer>
