@@ -1,4 +1,0 @@
-Bugs:
-- On a day with no .txt file, creates new file then deletes ALL .txt files? -> user.php
-- No way to delete an account -> settings.php, (+delete.php)
-- Fix error messages to be like old way (if(isset($_GET["error"])) -> $error = $_GET["error"]. if($error == "login") -> $error = "laskdnfka";)
