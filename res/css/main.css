@@ -141,8 +141,8 @@ h3.sectionTitle {
 
 .section img {
 	text-align: center;
-	height: 150px;
-	width: 300px;
+	height: 250px;
+	width: 400px;
 }
 
 .section p{
@@ -410,6 +410,7 @@ table#featureList {
 	height: 32px;
 	width: 32px;
 	margin-right: 8px;
+	border-radius: 8px;
 }
 
 #forecastTable td:hover {

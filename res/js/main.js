@@ -159,9 +159,19 @@
 				selection = json.list[i];
 			}
 		}
-		icon.src = ICON_URL + selection.weather[0].icon + ".png";
+		/* Makes sure snow info doesn't show unless the temperature is right
+		to address bug in weather API */
+		if ((selection.weather[0].icon == "13d" || 
+			selection.weather[0].icon == "13n") && 
+			((units == "imperial" && selection.temp.day > 35) || 
+			(units == "metric" && selection.temp.day > 3))) {
+			icon.src = ICON_URL + "10d.png";
+			desc.innerHTML = "light rain";
+		} else {
+			icon.src = ICON_URL + selection.weather[0].icon + ".png";
+			desc.innerHTML = selection.weather[0].description;
+		}
 		temp.innerHTML = Math.round(selection.temp.day) + unitSym;
-		desc.innerHTML = selection.weather[0].description;
 		minMax.innerHTML = Math.round(selection.temp.min) + unitSym + " / " + 
 		Math.round(selection.temp.max) + unitSym;
 		current.appendChild(cityName);
@@ -226,9 +236,21 @@
 			var cell = document.createElement("td");
 			cell.id = dataDate;
 			cell.onclick = changeDate;
+			var desc = document.createElement("p");
 			var icon = document.createElement("img");
 			icon.alt = "weather icon";
-			icon.src = ICON_URL + json.list[i].weather[0].icon + ".png";
+			/* Makes sure snow info doesn't show unless the temperature is right
+			to address bug in weather API */
+			if ((json.list[i].weather[0].icon == "13d" || 
+			json.list[i].weather[0].icon == "13n") && 
+			((units == "imperial" && json.list[i].temp.day > 35) || 
+			(units == "metric" && json.list[i].temp.day > 3))) {
+				icon.src = ICON_URL + "10d.png";
+				desc.innerHTML = "light rain";
+			} else {
+				icon.src = ICON_URL + json.list[i].weather[0].icon + ".png";
+				desc.innerHTML = json.list[i].weather[0].description;
+			}
 			icon.id = "weatherIcon";
 			var temp = document.createElement("p");
 			temp.id = "temperature";
@@ -237,8 +259,6 @@
 			minMax.id = "tableMinMax";
 			minMax.innerHTML = Math.round(json.list[i].temp.min) + unitSym + " / " + 
 			Math.round(json.list[i].temp.max) + unitSym;
-			var desc = document.createElement("p");
-			desc.innerHTML = json.list[i].weather[0].description;
 			cell.appendChild(icon);
 			cell.appendChild(temp);
 			cell.appendChild(desc);

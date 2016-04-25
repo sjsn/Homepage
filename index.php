@@ -71,7 +71,7 @@
 					<h3 id="siteDesc">What does this homepage offer?</h3>
 					<div class="section">
 						<h3 class="sectionTitle">Weather</h3>
-						<img src="" alt="Weather Example" />
+						<img src="./res/img/weather.png" alt="Weather Example" />
 						<p>
 							Get live weather provided by the free Open Weather Map
 							API. See the current temperature, a description of what
@@ -81,7 +81,7 @@
 					</div>
 					<div class="section">
 						<h3 class="sectionTitle">ToDo Lists</h3>
-						<img src="" alt="ToDo Lists Example" />
+						<img src="./res/img/todo.png" alt="ToDo Lists Example" />
 						<p>
 							Create ToDo Lists for the current day! Click on the ToDo Item
 							or the checkbox next to it to cross it off, or click the 'Delete'
@@ -93,7 +93,7 @@
 					</div>
 					<div class="section">
 						<h3 class="sectionTitle">Week Planning</h3>
-						<img src="" alt="Week Planning Example" />
+						<img src="./res/img/week.png" alt="Week Planning Example" />
 						<p>
 							See the weather forecast for the week! Also, click on any day
 							of the week to see that days ToDo items! This allows you to 
