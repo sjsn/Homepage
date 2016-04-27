@@ -21,6 +21,7 @@
 	var todayEpoch = ""; // The current date in Epoch/Unix time
 	var selectedDate = ""; // The currently selected date in Epoch/Unix time (default=todayEpoch)
 	var max = false; // If max amount of ToDo items (10) has been reached
+	var isLoading = false; // Whether the ajax request is loading or not
 	// URL for weather API
 	const API_URL = "http://api.openweathermap.org/data/2.5/";
 	// URL for weather icons
@@ -46,6 +47,9 @@
 		the function that the ajax request calls onload, weather it's 
 		a "GET" or "POST" request, and any parameters to be sent */
 	function ajax(url, php, redirect, type, params) {
+		/* Disables inputs while ajax request is running to prevent duplicate
+		data output */
+		isLoading = true;
 		var request = new XMLHttpRequest();
 		request.open(type, url + php, true);
 		request.onload = redirect;
@@ -179,6 +183,7 @@
 		current.appendChild(temp);
 		current.appendChild(desc);
 		current.appendChild(minMax);
+		isLoading = false;
 	}
 
 	/* Displays the 7-day forecast weather information from the weather API.
@@ -273,37 +278,39 @@
 
 	// Changes the selectedDate to the date of the forecast title that was clicked
 	function changeDate(newDate) {
-		// newDate is only defined when the date is changed from a keypress
-		if (!newDate || newDate.which) {
-			if (this.id == "tableTitle") {
-				var newDate = this.innerHTML;
+		if (!isLoading) {
+			// newDate is only defined when the date is changed from a keypress
+			if (!newDate || newDate.which) {
+				if (this.id == "tableTitle") {
+					var newDate = this.innerHTML;
+				} else {
+					var newDate = this.id;
+				}
 			} else {
-				var newDate = this.id;
+				var d = new Date(0);
+				d.setUTCSeconds(newDate);
+				newDate = d.toDateString();
+				newDate = newDate.split(" ");
+				newDate = newDate[0] + ", " + newDate[1] + " " + newDate[2] + 
+				", " + newDate[3];
 			}
-		} else {
-			var d = new Date(0);
-			d.setUTCSeconds(newDate);
-			newDate = d.toDateString();
-			newDate = newDate.split(" ");
-			newDate = newDate[0] + ", " + newDate[1] + " " + newDate[2] + 
-			", " + newDate[3];
-		}
-		var titles = document.querySelectorAll("#tableTitle");
-		for (var i = 0; i < titles.length; i++) {
-			if (titles[i].innerHTML == todayStandard) {
-				titles[i].style.backgroundColor = "#6EFF70";
-			} else if (titles[i].innerHTML == newDate && 
-				titles[i].innerHTML != todayStandard) {
-				titles[i].style.backgroundColor = "pink";
-			} else {
-				titles[i].style.backgroundColor = "white";
+			var titles = document.querySelectorAll("#tableTitle");
+			for (var i = 0; i < titles.length; i++) {
+				if (titles[i].innerHTML == todayStandard) {
+					titles[i].style.backgroundColor = "#6EFF70";
+				} else if (titles[i].innerHTML == newDate && 
+					titles[i].innerHTML != todayStandard) {
+					titles[i].style.backgroundColor = "pink";
+				} else {
+					titles[i].style.backgroundColor = "white";
+				}
 			}
+			newDate = newDate.split(", ");
+			newDate = newDate[1] + ", " + newDate[2];
+			// New date as epoch
+			selectedDate = new Date(newDate).getTime() / 1000;
+			getSettings();
 		}
-		newDate = newDate.split(", ");
-		newDate = newDate[1] + ", " + newDate[2];
-		// New date as epoch
-		selectedDate = new Date(newDate).getTime() / 1000;
-		getSettings();
 	}
 
 	// Sets up an AJAX request to get the selected dates ToDo List
@@ -373,6 +380,7 @@
 		}
 		document.getElementById("todoloading").style.display = "none";
 		document.getElementById("addItem").style.display = "initial";
+		isLoading = false;
 	}
 
 	// Changes the "checked" state of the selected ToDo item.
@@ -380,78 +388,84 @@
 		var php = "res/forms/todo.php";
 		var item;
 		var checked;
-		// If the checkbox was clicked
-		if (this.value) {
-			item = this.value;
-			checked = !this.checked;
-		// If the words were clicked
-		} else {
-			item = this.id;
-			var checks = document.querySelectorAll("#check");
-			var thisCheck;
-			for (var i = 0; i < checks.length; i++) {
-				if (checks[i].value == item) {
-					thisCheck = checks[i];
+		if (!isLoading) {
+			// If the checkbox was clicked
+			if (this.value) {
+				item = this.value;
+				checked = !this.checked;
+			// If the words were clicked
+			} else {
+				item = this.id;
+				var checks = document.querySelectorAll("#check");
+				var thisCheck;
+				for (var i = 0; i < checks.length; i++) {
+					if (checks[i].value == item) {
+						thisCheck = checks[i];
+					}
 				}
+				checked = thisCheck.checked;
 			}
-			checked = thisCheck.checked;
+			// Changes checked value to the new value
+			if (checked) {
+				checked = "false";
+			} else {
+				checked = "true";
+			}
+			console.log(item);
+			var params = new FormData();
+			params.append("item", item);
+			params.append("checked", checked);
+			params.append("date", selectedDate);
+			params.append("action", "check");
+			ajax(HOME_URL, php, getToDo, "POST", params);
 		}
-		// Changes checked value to the new value
-		if (checked) {
-			checked = "false";
-		} else {
-			checked = "true";
-		}
-		console.log(item);
-		var params = new FormData();
-		params.append("item", item);
-		params.append("checked", checked);
-		params.append("date", selectedDate);
-		params.append("action", "check");
-		ajax(HOME_URL, php, getToDo, "POST", params);
 	}
 
 	// Deletes the selected ToDo item
 	function deleteItem() {
 		var php = "res/forms/todo.php";
 		var item;
-		if (this) {
-			item = this.id;
-		} else {
-			var list = document.getElementById("list");
-			var lastRow = list.rows[list.rows.length - 1];
-			var cell = lastRow.cells[1];
-			item = cell.firstChild.id;
+		if (!isLoading) {
+			if (this) {
+				item = this.id;
+			} else {
+				var list = document.getElementById("list");
+				var lastRow = list.rows[list.rows.length - 1];
+				var cell = lastRow.cells[1];
+				item = cell.firstChild.id;
+			}
+			var params = new FormData();
+			params.append("item", item);
+			params.append("date", selectedDate);
+			params.append("action", "del");
+			ajax(HOME_URL, php, getToDo, "POST", params);
 		}
-		var params = new FormData();
-		params.append("item", item);
-		params.append("date", selectedDate);
-		params.append("action", "del");
-		ajax(HOME_URL, php, getToDo, "POST", params);
 	}
 
 	// Adds a new ToDoitem if the max hasn't been reached
 	function addToDoItem() {
-		if (!max) {
-			document.getElementById("addError").style.display = "none";
-			document.getElementById("addError").innerHTML = "";
-			var php = "res/forms/todo.php";
-			var newItem = document.getElementById("newItem").value;
-			if (newItem != "") {
-				var params = new FormData();
-				params.append("item", newItem);
-				params.append("date", selectedDate);
-				params.append("action", "add");
-				ajax(HOME_URL, php, makeToDo, "POST", params);
+		if (!isLoading) {
+			if (!max) {
+				document.getElementById("addError").style.display = "none";
+				document.getElementById("addError").innerHTML = "";
+				var php = "res/forms/todo.php";
+				var newItem = document.getElementById("newItem").value;
+				if (newItem != "") {
+					var params = new FormData();
+					params.append("item", newItem);
+					params.append("date", selectedDate);
+					params.append("action", "add");
+					ajax(HOME_URL, php, makeToDo, "POST", params);
+				} else {
+					document.getElementById("addError").style.display = "block";
+					document.getElementById("addError").innerHTML = "New ToDo  " +
+					"items cannot be blank. Please try again";
+				}
 			} else {
 				document.getElementById("addError").style.display = "block";
-				document.getElementById("addError").innerHTML = "New ToDo  " +
-				"items cannot be blank. Please try again";
+				document.getElementById("addError").innerHTML = "You already " + 
+				"have 10 ToDo items. Please delete one to add another.";
 			}
-		} else {
-			document.getElementById("addError").style.display = "block";
-			document.getElementById("addError").innerHTML = "You already " + 
-			"have 10 ToDo items. Please delete one to add another.";
 		}
 	}
 
@@ -472,28 +486,30 @@
 		var key = e.which || e.keyCode;
 		/* Checks if the ToDo field is selected or not. Don't want to 
 		change day if the user is typing a '[' or ']' into the ToDo field*/
-		if (document.activeElement.tagName != "INPUT") {
-			// When '[' is pressed, go back one day
-			if (key == 219 && selectedDate > todayEpoch) {
-				selectedDate = selectedDate - 86400;
-				changeDate(selectedDate);
-			// When ']' is pressed, go forward one day
-			} else if (key == 221 && selectedDate < (todayEpoch + (86400 * 7))) {
-				selectedDate = selectedDate + 86400;
-				changeDate(selectedDate);
-			} else if (key == 189 && 
-				document.getElementById("list").rows.length > 0) {
-				deleteItem();
+		if (!isLoading) {
+			if (document.activeElement.tagName != "INPUT") {
+				// When '[' is pressed, go back one day
+				if (key == 219 && selectedDate > todayEpoch) {
+					selectedDate = selectedDate - 86400;
+					changeDate(selectedDate);
+				// When ']' is pressed, go forward one day
+				} else if (key == 221 && selectedDate < (todayEpoch + (86400 * 7))) {
+					selectedDate = selectedDate + 86400;
+					changeDate(selectedDate);
+				} else if (key == 189 && 
+					document.getElementById("list").rows.length > 0) {
+					deleteItem();
+				}
 			}
-		}
-		// When 'enter' is pressed, add current ToDo item
-		if (key == 13) {
-			// Adds item when text is in the newItem field
-			if (document.getElementById("newItem").value != "") {
-				addToDoItem();
-			// Focuses on item when there is no text in the field
-			} else {
-				document.getElementById("newItem").focus();
+			// When 'enter' is pressed, add current ToDo item
+			if (key == 13) {
+				// Adds item when text is in the newItem field
+				if (document.getElementById("newItem").value != "") {
+					addToDoItem();
+				// Focuses on item when there is no text in the field
+				} else {
+					document.getElementById("newItem").focus();
+				}
 			}
 		}
 	}
